@@ -1,0 +1,10 @@
+# Current members of the Wikidata-Toolkit project,
+# as specified by GOVERNANCE.md.
+
+owners: # this corresponds to the "Owner" role: https://github.com/orgs/Wikidata-Toolkit/people?query=role%3Aowner
+  - wetneb
+  - Tpt
+  - Lhaaits
+
+members: # this corresponds to the "Member" role: https://github.com/orgs/Wikidata-Toolkit/people?query=role%3Amember
+  - TheEaterr
