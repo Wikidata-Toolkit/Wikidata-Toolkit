@@ -93,7 +93,7 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>5.18.0</version>
+				<version>5.19.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -325,7 +325,7 @@
 				<!-- Plugin for creating Javadocs; goal for preparing docs for upload to github: javadoc:aggregate -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.11.2</version>
+				<version>3.11.3</version>
 				<configuration>
 					<bottom>
 						<![CDATA[Copyright &#169; {inceptionYear}&#x2013;{currentYear} {organizationName}. Generated from source code published under the Apache License 2.0. For more information, see the <a href="https://www.mediawiki.org/wiki/Wikidata_Toolkit">Wikidata Toolkit homepage</a>]]></bottom>
