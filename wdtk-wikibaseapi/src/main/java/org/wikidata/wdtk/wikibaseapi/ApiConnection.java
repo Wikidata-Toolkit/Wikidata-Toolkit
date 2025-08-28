@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -69,6 +70,9 @@ import okhttp3.Response;
 public abstract class ApiConnection {
 
 	static final Logger logger = LoggerFactory.getLogger(ApiConnection.class);
+
+    private static final String DEFAULT_FALLBACK_USER_AGENT =
+            "Wikidata-Toolkit/unknown (+https://github.com/Wikidata-Toolkit/Wikidata-Toolkit)";
 
 	/**
 	 * URL of the API of wikidata.org.
@@ -133,6 +137,11 @@ public abstract class ApiConnection {
 	 * For negative values, no timeout is set.
 	 */
 	protected int readTimeout = -1;
+
+    /**
+     * A custom user agent for each HTTP request.
+     */
+    protected String customUserAgent = loadDefaultUserAgent();
 
 	/**
 	 * Http client used for making requests.
@@ -288,7 +297,17 @@ public abstract class ApiConnection {
 		return readTimeout;
 	}
 
-	/**
+    @JsonProperty("customUserAgent")
+    public String getCustomUserAgent() {
+        return customUserAgent;
+    }
+
+    public void setCustomUserAgent(String customUserAgent) {
+        this.customUserAgent = customUserAgent;
+        this.client = null;
+    }
+
+    /**
 	 * Logs the current user out.
 	 *
 	 * @throws IOException
@@ -618,5 +637,18 @@ public abstract class ApiConnection {
 		}
 		return builder.toString();
 	}
+
+    private static String loadDefaultUserAgent() {
+        final Properties properties = new Properties();
+        try (InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("wikidata-tk-http.properties")) {
+            if (input != null) {
+                properties.load(input);
+                return properties.getProperty("user.agent", DEFAULT_FALLBACK_USER_AGENT);
+            }
+        } catch (IOException e) {
+            logger.warn(e.getLocalizedMessage(), e);
+        }
+        return DEFAULT_FALLBACK_USER_AGENT;
+    }
 
 }

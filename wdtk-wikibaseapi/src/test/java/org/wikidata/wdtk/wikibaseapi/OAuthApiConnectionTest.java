@@ -72,7 +72,8 @@ public class OAuthApiConnectionTest {
             "\"loggedIn\":true," +
             "\"tokens\":{}," +
             "\"connectTimeout\":-1," +
-            "\"readTimeout\":-1}";
+            "\"readTimeout\":-1," +
+            "\"customUserAgent\":\"customAgent\"}";
 
     @BeforeClass
     public static void init() throws IOException {
@@ -109,6 +110,7 @@ public class OAuthApiConnectionTest {
     public void setUp() {
         connection = new OAuthApiConnection(server.url("/w/api.php").toString(),
                 CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET);
+        connection.setCustomUserAgent("customAgent");
     }
 
     @Test

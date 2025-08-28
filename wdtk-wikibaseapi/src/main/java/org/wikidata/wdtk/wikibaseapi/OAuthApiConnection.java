@@ -123,6 +123,7 @@ public class OAuthApiConnection extends ApiConnection {
         OkHttpOAuthConsumer consumer = new OkHttpOAuthConsumer(consumerKey, consumerSecret);
         consumer.setTokenWithSecret(accessToken, accessSecret);
         return new OkHttpClient.Builder()
+                .addInterceptor(new UserAgentInterceptor(customUserAgent))
                 .addInterceptor(new SigningInterceptor(consumer));
     }
 

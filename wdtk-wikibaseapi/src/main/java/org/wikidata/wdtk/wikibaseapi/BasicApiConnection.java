@@ -108,6 +108,7 @@ public class BasicApiConnection extends ApiConnection {
 	@Override
 	protected OkHttpClient.Builder getClientBuilder() {
 		return new OkHttpClient.Builder()
+                .addInterceptor(new UserAgentInterceptor(customUserAgent))
 				.cookieJar(new JavaNetCookieJar(cookieManager));
 	}
 
