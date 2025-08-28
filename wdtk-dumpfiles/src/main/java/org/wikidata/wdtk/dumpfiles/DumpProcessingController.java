@@ -375,7 +375,7 @@ public class DumpProcessingController {
 	 * @see DumpProcessingController#getMostRecentDump(DumpContentType)
 	 */
 	public void processAllRecentRevisionDumps() 
-		throws IOException, FileAlreadyExistsException {
+		throws IOException {
 		WmfDumpFileManager wmfDumpFileManager = getWmfDumpFileManager();
 		if (wmfDumpFileManager == null) {
 			return;
@@ -400,7 +400,7 @@ public class DumpProcessingController {
 	 * @see DumpProcessingController#processAllRecentRevisionDumps()
 	 */
 	public void processMostRecentMainDump() 
-		throws IOException, FileAlreadyExistsException {
+		throws IOException {
 		DumpContentType dumpContentType;
 		if (this.preferCurrent) {
 			dumpContentType = DumpContentType.CURRENT;
@@ -422,7 +422,7 @@ public class DumpProcessingController {
 	 * @see DumpProcessingController#processAllRecentRevisionDumps()
 	 */
 	public void processMostRecentJsonDump() 
-		throws IOException, FileAlreadyExistsException {
+		throws IOException {
 		processDump(getMostRecentDump(DumpContentType.JSON));
 	}
 
@@ -438,7 +438,7 @@ public class DumpProcessingController {
 	 *            the dump to process
 	 */
 	public void processDump(MwDumpFile dumpFile) 
-			throws IOException, FileAlreadyExistsException {
+			throws IOException {
 		if (dumpFile == null) {
 			return;
 		}
@@ -507,12 +507,10 @@ public class DumpProcessingController {
 					+ " could not be processed since file "
 					+ e.getFile()
 					+ " already exists. Try deleting the file or dumpfile directory to attempt a new download.";
-			logger.error(errorMessage);
-			throw new FileAlreadyExistsException(errorMessage);
+			throw new FileAlreadyExistsException(dumpFile.toString(), e.getFile(), errorMessage);
 		} catch (IOException e) {
 			String errorMessage = "Dump file " + dumpFile.toString()
 					+ " could not be processed: " + e.toString();
-			logger.error(errorMessage);
 			throw new IOException(errorMessage);
 		}
 	}

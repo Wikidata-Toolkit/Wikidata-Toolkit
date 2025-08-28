@@ -25,6 +25,8 @@ import org.wikidata.wdtk.dumpfiles.DumpProcessingController;
 import org.wikidata.wdtk.dumpfiles.EntityTimerProcessor;
 import org.wikidata.wdtk.dumpfiles.MwLocalDumpFile;
 
+import java.io.IOException;
+
 /**
  * This class illustrates how to process local dumpfiles. It uses
  * {@link EntityTimerProcessor} to process a dump.
