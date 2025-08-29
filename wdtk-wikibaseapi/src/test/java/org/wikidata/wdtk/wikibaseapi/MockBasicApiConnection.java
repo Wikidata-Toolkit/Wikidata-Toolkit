@@ -20,14 +20,17 @@ package org.wikidata.wdtk.wikibaseapi;
  * #L%
  */
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.MediaType;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,14 +104,27 @@ public class MockBasicApiConnection extends BasicApiConnection {
 	}
 
 	@Override
-	public InputStream sendRequest(String requestMethod,
-			Map<String, String> parameters,
-			Map<String, ImmutablePair<String, File>> files) throws IOException {
+	public Response sendRequest2(String requestMethod,
+                                 Map<String, String> parameters,
+                                 Map<String, ImmutablePair<String, File>> files) throws IOException {
 		// files parameter purposely ignored because we do not support mocking that yet
 		if (this.webResources.containsKey(parameters.hashCode())) {
-			return new ByteArrayInputStream(this.webResources.get(parameters
-					.hashCode()));
-		} else {
+            final byte[] data = this.webResources.get(parameters.hashCode());
+
+            final ResponseBody body = ResponseBody.create(
+                    data,
+                    MediaType.get("application/json")
+            );
+
+            return new Response.Builder()
+                    .code(200)
+                    .message("OK")
+                    .protocol(Protocol.HTTP_1_1)
+                    .request(new Request.Builder().url("http://localhost/mock").build())
+                    .body(body)
+                    .build();
+
+        } else {
 			throw new IOException("API result not mocked for parameters "
 					+ parameters);
 		}
