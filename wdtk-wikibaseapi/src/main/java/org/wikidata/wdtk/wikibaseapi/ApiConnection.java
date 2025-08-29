@@ -36,6 +36,9 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,7 +154,9 @@ public abstract class ApiConnection {
 	/**
 	 * Mapper object used for deserializing JSON data.
 	 */
-	private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = JsonMapper.builder()
+            .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+            .build();
 
 	/**
 	 * Creates an object to manage a connection to the Web API of a Wikibase
@@ -407,23 +412,53 @@ public abstract class ApiConnection {
 	 * @return API result
 	 * @throws IOException
 	 * @throws MediaWikiApiErrorException if the API returns an error
-	 */
-	public JsonNode sendJsonRequest(String requestMethod,
-			Map<String,String> parameters,
-			Map<String, ImmutablePair<String,File>> files) throws IOException, MediaWikiApiErrorException {
-		parameters.put(ApiConnection.PARAM_FORMAT, "json");
-		if (loggedIn) {
-			parameters.put(ApiConnection.ASSERT_PARAMETER, "user");
-		}
-		try (InputStream response = sendRequest(requestMethod, parameters, files)) {
-			JsonNode root = this.mapper.readTree(response);
-			this.checkErrors(root);
-			this.logWarnings(root);
-			return root;
-		}
-	}
+     */
+    public JsonNode sendJsonRequest(String requestMethod,
+                                    Map<String, String> parameters,
+                                    Map<String, ImmutablePair<String, File>> files) throws IOException, MediaWikiApiErrorException {
+        parameters.put(ApiConnection.PARAM_FORMAT, "json");
+        if (loggedIn) {
+            parameters.put(ApiConnection.ASSERT_PARAMETER, "user");
+        }
+        try (Response response = sendRequest2(requestMethod, parameters, files)) {
+            return parseResponse(checkResponse(response));
+        }
+    }
 
-	/**
+    private Response checkResponse(Response response) throws IOException {
+        if (!response.isSuccessful()) {
+            logger.error(
+                    "HTTP request failed. Status: {}, Headers: {}",
+                    response.code(),
+                    response.headers()
+            );
+            throw new IOException(
+                    "Unexpected HTTP status: " + response.code() + " " + response.message()
+            );
+        }
+        return response;
+    }
+
+    private JsonNode parseResponse(Response response) throws IOException, MediaWikiApiErrorException {
+        final String responseBody = response.body().string();
+        try {
+            final JsonNode root = this.mapper.readTree(responseBody);
+            this.checkErrors(root);
+            this.logWarnings(root);
+            return root;
+        } catch (JsonParseException e) {
+            logger.error(
+                    "JSON parse failed. Status: '{}', Headers: '{}', Body: '{}'",
+                    response.code(),
+                    response.headers(),
+                    responseBody,
+                    e
+            );
+            throw e;
+        }
+    }
+
+    /**
 	 * Sends a request to the API with the given parameters and the given
 	 * request method and returns the result string. It automatically fills the
 	 * cookie map with cookies in the result header after the request.
@@ -446,39 +481,68 @@ public abstract class ApiConnection {
 	 * @return API result
 	 * @throws IOException
 	 */
+    @Deprecated(since = "1.17.1", forRemoval = true)
 	public InputStream sendRequest(String requestMethod,
 			Map<String, String> parameters,
 			Map<String, ImmutablePair<String,File>> files) throws IOException {
-		Request request;
-		String queryString = getQueryString(parameters);
-		if ("GET".equalsIgnoreCase(requestMethod)) {
-			request = new Request.Builder().url(apiBaseUrl + "?" + queryString).build();
-		} else if ("POST".equalsIgnoreCase(requestMethod)) {
-			RequestBody body;
-			if (files != null && !files.isEmpty()) {
-				MediaType formDataMediaType = MediaType.parse("multipart/form-data");
-				MultipartBody.Builder builder = new MultipartBody.Builder();
-				builder.setType(formDataMediaType);
-				parameters.entrySet().stream()
-					.forEach(entry -> builder.addFormDataPart(entry.getKey(), entry.getValue()));
-				files.entrySet().stream()
-					.forEach(entry -> builder.addFormDataPart(entry.getKey(), entry.getValue().getLeft(),
-							RequestBody.create(formDataMediaType,entry.getValue().getRight())));
-				body = builder.build();
-			} else {
-				body = RequestBody.create(queryString, URLENCODED_MEDIA_TYPE);
-			}
-			request = new Request.Builder().url(apiBaseUrl).post(body).build();
-		} else {
-			throw new IllegalArgumentException("Expected the requestMethod to be either GET or POST, but got " + requestMethod);
-		}
-
-		if (client == null) {
-			buildClient();
-		}
-		Response response = client.newCall(request).execute();
-		return Objects.requireNonNull(response.body()).byteStream();
+		return Objects.requireNonNull(sendRequest2(requestMethod, parameters, files).body()).byteStream();
 	}
+
+    /**
+     * Sends a request to the API with the given parameters and the given
+     * request method and returns the result string. It automatically fills the
+     * cookie map with cookies in the result header after the request.
+     *
+     * Warning: You probably want to use ApiConnection.sendJsonRequest
+     * that execute the request using JSON content format,
+     * throws the errors and logs the warnings.
+     *
+     * @param requestMethod
+     *            either POST or GET
+     * @param parameters
+     *            Maps parameter keys to values. Out of this map the function
+     *            will create a query string for the request.
+     * @param files
+     *            If GET, this should be null. If POST, this can contain
+     *            a list of files to upload, indexed by the parameter to pass them with.
+     *            The first component of the pair is the filename exposed to the server,
+     *            and the second component is the path to the local file to upload.
+     *            Set to null or empty map to avoid uploading any file.
+     * @return API result
+     * @throws IOException
+     */
+    public Response sendRequest2(String requestMethod,
+                                   Map<String, String> parameters,
+                                   Map<String, ImmutablePair<String,File>> files) throws IOException {
+        Request request;
+        String queryString = getQueryString(parameters);
+        if ("GET".equalsIgnoreCase(requestMethod)) {
+            request = new Request.Builder().url(apiBaseUrl + "?" + queryString).build();
+        } else if ("POST".equalsIgnoreCase(requestMethod)) {
+            RequestBody body;
+            if (files != null && !files.isEmpty()) {
+                MediaType formDataMediaType = MediaType.parse("multipart/form-data");
+                MultipartBody.Builder builder = new MultipartBody.Builder();
+                builder.setType(formDataMediaType);
+                parameters.entrySet().stream()
+                        .forEach(entry -> builder.addFormDataPart(entry.getKey(), entry.getValue()));
+                files.entrySet().stream()
+                        .forEach(entry -> builder.addFormDataPart(entry.getKey(), entry.getValue().getLeft(),
+                                RequestBody.create(formDataMediaType,entry.getValue().getRight())));
+                body = builder.build();
+            } else {
+                body = RequestBody.create(queryString, URLENCODED_MEDIA_TYPE);
+            }
+            request = new Request.Builder().url(apiBaseUrl).post(body).build();
+        } else {
+            throw new IllegalArgumentException("Expected the requestMethod to be either GET or POST, but got " + requestMethod);
+        }
+
+        if (client == null) {
+            buildClient();
+        }
+        return client.newCall(request).execute();
+    }
 
 	private void buildClient() {
 		OkHttpClient.Builder builder = getClientBuilder();
