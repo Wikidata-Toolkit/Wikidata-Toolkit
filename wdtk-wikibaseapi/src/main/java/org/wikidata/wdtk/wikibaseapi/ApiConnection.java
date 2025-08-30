@@ -420,7 +420,7 @@ public abstract class ApiConnection {
         if (loggedIn) {
             parameters.put(ApiConnection.ASSERT_PARAMETER, "user");
         }
-        try (Response response = sendRequest2(requestMethod, parameters, files)) {
+        try (Response response = sendRequest(requestMethod, parameters, files)) {
             return parseResponse(checkResponse(response));
         }
     }
@@ -459,36 +459,6 @@ public abstract class ApiConnection {
     }
 
     /**
-	 * Sends a request to the API with the given parameters and the given
-	 * request method and returns the result string. It automatically fills the
-	 * cookie map with cookies in the result header after the request.
-	 *
-	 * Warning: You probably want to use ApiConnection.sendJsonRequest
-	 * that execute the request using JSON content format,
-	 * throws the errors and logs the warnings.
-	 *
-	 * @param requestMethod
-	 *            either POST or GET
-	 * @param parameters
-	 *            Maps parameter keys to values. Out of this map the function
-	 *            will create a query string for the request.
-	 * @param files
-	 *            If GET, this should be null. If POST, this can contain
-	 *            a list of files to upload, indexed by the parameter to pass them with.
-	 *            The first component of the pair is the filename exposed to the server,
-	 *            and the second component is the path to the local file to upload.
-	 *            Set to null or empty map to avoid uploading any file.
-	 * @return API result
-	 * @throws IOException
-	 */
-    @Deprecated(since = "1.17.1", forRemoval = true)
-	public InputStream sendRequest(String requestMethod,
-			Map<String, String> parameters,
-			Map<String, ImmutablePair<String,File>> files) throws IOException {
-		return Objects.requireNonNull(sendRequest2(requestMethod, parameters, files).body()).byteStream();
-	}
-
-    /**
      * Sends a request to the API with the given parameters and the given
      * request method and returns the result string. It automatically fills the
      * cookie map with cookies in the result header after the request.
@@ -511,7 +481,7 @@ public abstract class ApiConnection {
      * @return API result
      * @throws IOException
      */
-    public Response sendRequest2(String requestMethod,
+    public Response sendRequest(String requestMethod,
                                    Map<String, String> parameters,
                                    Map<String, ImmutablePair<String,File>> files) throws IOException {
         Request request;

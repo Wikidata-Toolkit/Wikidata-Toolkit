@@ -104,7 +104,7 @@ public class MockBasicApiConnection extends BasicApiConnection {
 	}
 
 	@Override
-	public Response sendRequest2(String requestMethod,
+	public Response sendRequest(String requestMethod,
                                  Map<String, String> parameters,
                                  Map<String, ImmutablePair<String, File>> files) throws IOException {
 		// files parameter purposely ignored because we do not support mocking that yet
