@@ -72,7 +72,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jacksonVersion>2.19.2</jacksonVersion>
+		<jacksonVersion>2.20</jacksonVersion>
 		<okhttpVersion>5.1.0</okhttpVersion>
 	</properties>
 
