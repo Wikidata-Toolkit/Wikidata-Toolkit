@@ -72,7 +72,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jacksonVersion>2.20</jacksonVersion>
+		<jacksonVersion>2.20.0</jacksonVersion>
 		<okhttpVersion>5.1.0</okhttpVersion>
 	</properties>
 
@@ -117,24 +117,11 @@
 				<version>1.28.0</version>
 			</dependency>
 			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-annotations</artifactId>
+				<groupId>com.fasterxml.jackson</groupId>
+				<artifactId>jackson-bom</artifactId>
 				<version>${jacksonVersion}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-core</artifactId>
-				<version>${jacksonVersion}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${jacksonVersion}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.datatype</groupId>
-				<artifactId>jackson-datatype-jdk8</artifactId>
-				<version>${jacksonVersion}</version>
+                                <scope>import</scope>
+                                <type>pom</type>
 			</dependency>
 			<dependency>
 				<groupId>org.threeten</groupId>
