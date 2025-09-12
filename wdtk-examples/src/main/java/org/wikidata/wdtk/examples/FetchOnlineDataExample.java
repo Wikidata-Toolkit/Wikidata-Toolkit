@@ -194,7 +194,6 @@ public class FetchOnlineDataExample {
 	 * Prints the raw {@link EntityDocument} results to the configured file.
 	 * 
 	 * @param document the entity document to print
-	 * @throws IOException if an error occurs while writing to the output file
 	 */
 	private static void writeFinalResults(EntityDocument document) {
 		try (PrintStream out = new PrintStream(ExampleHelpers.openExampleFileOuputStream(OUTPUT_FILE_NAME))) {
@@ -208,7 +207,6 @@ public class FetchOnlineDataExample {
 	 * Prints the raw {@link WbSearchEntitiesResult} results to the configured file.
 	 * 
 	 * @param result the entity document to print
-	 * @throws IOException if an error occurs while writing to the output file
 	 */
 	private static void writeFinalResults(WbSearchEntitiesResult result) {
 		try (PrintStream out = new PrintStream(ExampleHelpers.openExampleFileOuputStream(OUTPUT_FILE_NAME))) {
