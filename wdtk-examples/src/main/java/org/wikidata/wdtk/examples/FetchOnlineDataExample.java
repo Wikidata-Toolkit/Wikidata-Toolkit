@@ -43,11 +43,11 @@ import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
  * This example does not download any dump file
  * 
  * <ul>
- * <li>Fetches a single (& multiple entities) at a time using the unique QID
+ * <li>Fetches a single and multiple Entities at a time using the unique QID
  * (Wikimedia identifier)
  * <li>Fetches using filters for a single entity to reduce the volume of data
  * returned
- * <li>Fetches a single (& multiple entities) at a time using the title
+ * <li>Fetches a single and multiple Entities at a time using the title
  * <li>Searches for entities matching "Douglas Adams" from the "fr" Wiki
  * </ul>
  *
@@ -68,6 +68,21 @@ public class FetchOnlineDataExample {
 	static final String OUTPUT_FILE_NAME = "fetch-online-data-example.log";
 	static final boolean OUTPUT_RAW_RESULTS_DATA = false;
 
+	/**
+	 * Main method that demonstrates various ways to fetch data from Wikidata
+	 * using the WikibaseDataFetcher. This example shows how to:
+	 * <ul>
+	 * <li>Fetch a single entity by its ID</li>
+	 * <li>Fetch multiple entities at once</li>
+	 * <li>Use filters to limit the data returned</li>
+	 * <li>Fetch entities by title from Wikipedia</li>
+	 * <li>Search for entities by name</li>
+	 * </ul>
+	 * 
+	 * @param args command line arguments (unused)
+	 * @throws MediaWikiApiErrorException if there is an error with the MediaWiki API
+	 * @throws IOException if there is an I/O error during data fetching
+	 */
 	public static void main(String[] args) throws MediaWikiApiErrorException, IOException {
 		ExampleHelpers.configureLogging();
 		printDocumentation();
@@ -176,9 +191,10 @@ public class FetchOnlineDataExample {
 	}
 
 	/**
-	 * Prints the raw {@link EntityDoucment} results to the configured file.
+	 * Prints the raw {@link EntityDocument} results to the configured file.
 	 * 
 	 * @param document the entity document to print
+	 * @throws IOException if an error occurs while writing to the output file
 	 */
 	private static void writeFinalResults(EntityDocument document) {
 		try (PrintStream out = new PrintStream(ExampleHelpers.openExampleFileOuputStream(OUTPUT_FILE_NAME))) {
@@ -192,6 +208,7 @@ public class FetchOnlineDataExample {
 	 * Prints the raw {@link WbSearchEntitiesResult} results to the configured file.
 	 * 
 	 * @param result the entity document to print
+	 * @throws IOException if an error occurs while writing to the output file
 	 */
 	private static void writeFinalResults(WbSearchEntitiesResult result) {
 		try (PrintStream out = new PrintStream(ExampleHelpers.openExampleFileOuputStream(OUTPUT_FILE_NAME))) {
