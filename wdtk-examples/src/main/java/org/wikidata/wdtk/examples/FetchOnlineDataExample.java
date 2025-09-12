@@ -38,7 +38,18 @@ import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
  * This example illustrates simple data fetching from the Wikidata Action API.
  * It uses a {@link WikibaseDataFetcher} to establish a connection to the
  * Wikidata API directly and fetches details about several different
- * {@link EntityDocument}'s.
+ * {@link EntityDocument}'s and {@link WbSearchEntitiesResult}'s.
+ * 
+ * This example does not download any dump file
+ * 
+ * <ul>
+ * <li>Fetches a single (& multiple entities) at a time using the unique QID
+ * (Wikimedia identifier)
+ * <li>Fetches using filters for a single entity to reduce the volume of data
+ * returned
+ * <li>Fetches a single (& multiple entities) at a time using the title
+ * <li>Searches for entities matching "Douglas Adams" from the "fr" Wiki
+ * </ul>
  *
  * Options are provided to output results directly to a logfile using the static
  * attributes at the top of the class. Simply toggle the
