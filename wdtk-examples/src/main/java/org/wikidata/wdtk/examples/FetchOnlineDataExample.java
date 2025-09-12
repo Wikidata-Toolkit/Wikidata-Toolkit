@@ -21,6 +21,7 @@ package org.wikidata.wdtk.examples;
  */
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,7 +34,28 @@ import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
+/**
+ * This example illustrates simple data fetching from the Wikidata Action API.
+ * It uses a {@link WikibaseDataFetcher} to establish a connection to the
+ * Wikidata API directly and fetches details about several different
+ * {@link EntityDocument}'s.
+ *
+ * Options are provided to output results directly to a logfile using the static
+ * attributes at the top of the class. Simply toggle the
+ * {@code OUTPUT_RAW_RESULTS_DATA} to true and configure the desired output path
+ * and filename {@code OUTPUT_FILE_NAME}.
+ * 
+ * @author Markus Kroetzsch
+ * 
+ */
 public class FetchOnlineDataExample {
+
+	/**
+	 * Directory (destination) and filename for optional raw results data, should be
+	 * a .log or .txt file
+	 */
+	static final String OUTPUT_FILE_NAME = "fetch-online-data-example.log";
+	static final boolean OUTPUT_RAW_RESULTS_DATA = false;
 
 	public static void main(String[] args) throws MediaWikiApiErrorException, IOException {
 		ExampleHelpers.configureLogging();
@@ -43,6 +65,9 @@ public class FetchOnlineDataExample {
 				BasicApiConnection.getWikidataApiConnection(),
 				Datamodel.SITE_WIKIDATA);
 
+		/**
+		 * Fetch a single EntityDocument from Wikidata using its entityId
+		 */
 		System.out.println("*** Fetching data for one entity:");
 		EntityDocument q42 = wbdf.getEntityDocument("L1259271");
 		System.out.println(q42);
@@ -50,8 +75,14 @@ public class FetchOnlineDataExample {
 		if (q42 instanceof ItemDocument) {
 			System.out.println("The English name for entity Q42 is "
 					+ ((ItemDocument) q42).getLabels().get("en").getText());
+			if (OUTPUT_RAW_RESULTS_DATA) {
+				writeFinalResults(q42);
+			}
 		}
 
+		/**
+		 * Fetch multiple Entity Documents from Wikidata using their entitiyId values.
+		 */
 		System.out.println("*** Fetching data for several entities:");
 		Map<String, EntityDocument> results = wbdf.getEntityDocuments("Q80",
 				"P31");
@@ -59,8 +90,15 @@ public class FetchOnlineDataExample {
 		for (EntityDocument ed : results.values()) {
 			System.out.println("Successfully retrieved data for "
 					+ ed.getEntityId().getId());
+			if (OUTPUT_RAW_RESULTS_DATA) {
+				writeFinalResults(ed);
+			}
 		}
 
+		/**
+		 * Fetch single Entity Document using filters to limit the scope of data
+		 * returned
+		 */
 		System.out
 				.println("*** Fetching data using filters to reduce data volume:");
 		// Only site links from English Wikipedia:
@@ -75,15 +113,29 @@ public class FetchOnlineDataExample {
 					+ ((ItemDocument) q8).getLabels().get("fr").getText()
 					+ "\nand its English Wikipedia page has the title "
 					+ ((ItemDocument) q8).getSiteLinks().get("enwiki")
-					.getPageTitle() + ".");
+							.getPageTitle()
+					+ ".");
+			if (OUTPUT_RAW_RESULTS_DATA) {
+				writeFinalResults(q8);
+			}
 		}
 
+		/**
+		 * Fetch single Entity Document from "enwiki" with the title: "Terry Pratchett"
+		 */
 		System.out.println("*** Fetching data based on page title:");
 		EntityDocument edPratchett = wbdf.getEntityDocumentByTitle("enwiki",
 				"Terry Pratchett");
 		System.out.println("The Qid of Terry Pratchett is "
 				+ edPratchett.getEntityId().getId());
+		if (OUTPUT_RAW_RESULTS_DATA) {
+			writeFinalResults(edPratchett);
+		}
 
+		/**
+		 * Fetch multiple Entity Documents from "enwiki" with the title(s): "Wikidata",
+		 * "Wikipedia"
+		 */
 		System.out.println("*** Fetching data based on several page titles:");
 		results = wbdf.getEntityDocumentsByTitle("enwiki", "Wikidata",
 				"Wikipedia");
@@ -93,14 +145,49 @@ public class FetchOnlineDataExample {
 					.println("Successfully retrieved data for page entitled \""
 							+ entry.getKey() + "\": "
 							+ entry.getValue().getEntityId().getId());
+			if (OUTPUT_RAW_RESULTS_DATA) {
+				writeFinalResults(entry.getValue());
+			}
 		}
 
+		/**
+		 * Search "fr" Wikidata for entities matching "Douglas Adams"
+		 */
 		System.out.println("** Doing search on Wikidata:");
-		for(WbSearchEntitiesResult result : wbdf.searchEntities("Douglas Adams", "fr")) {
+		for (WbSearchEntitiesResult result : wbdf.searchEntities("Douglas Adams", "fr")) {
 			System.out.println("Found " + result.getEntityId() + " with label " + result.getLabel());
+			if (OUTPUT_RAW_RESULTS_DATA) {
+				writeFinalResults(result);
+			}
 		}
 
 		System.out.println("*** Done.");
+	}
+
+	/**
+	 * Prints the raw {@link EntityDoucment} results to the configured file.
+	 * 
+	 * @param document the entity document to print
+	 */
+	private static void writeFinalResults(EntityDocument document) {
+		try (PrintStream out = new PrintStream(ExampleHelpers.openExampleFileOuputStream(OUTPUT_FILE_NAME))) {
+			out.println(document);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Prints the raw {@link WbSearchEntitiesResult} results to the configured file.
+	 * 
+	 * @param result the entity document to print
+	 */
+	private static void writeFinalResults(WbSearchEntitiesResult result) {
+		try (PrintStream out = new PrintStream(ExampleHelpers.openExampleFileOuputStream(OUTPUT_FILE_NAME))) {
+			out.println(result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
