@@ -266,6 +266,11 @@ public class WmfDumpFileManager {
 				if (dumpFile.isAvailable()) {
 					result.add(dumpFile);
 				} else {
+				    // Output a better error message, for https://github.com/Wikidata-Toolkit/Wikidata-Toolkit/issues/970
+				    if (dumpFile instanceof WmfLocalDumpFile) {
+				        WmfLocalDumpFile localDumpFile = (WmfLocalDumpFile) dumpFile;
+				        logger.error("Missing file "+ localDumpFile.dumpFileName() + " in directory " + dumpFile.getDumpfileDirectory());
+				    }
 					logger.error("Incomplete local dump file data. Maybe delete "
 							+ dumpFile.getDumpfileDirectory()
 							+ " to attempt fresh download.");

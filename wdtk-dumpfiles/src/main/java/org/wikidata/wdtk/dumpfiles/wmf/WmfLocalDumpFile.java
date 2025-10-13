@@ -109,9 +109,12 @@ public class WmfLocalDumpFile extends WmfDumpFile {
 
 	@Override
 	protected boolean fetchIsDone() {
-		return this.localDumpfileDirectoryManager.hasFile(WmfDumpFile
-				.getDumpFileName(this.dumpContentType, this.projectName,
-						this.dateStamp));
+		return this.localDumpfileDirectoryManager.hasFile(dumpFileName());
+	}
+	
+	protected String dumpFileName() {
+	    return WmfDumpFile
+                .getDumpFileName(this.dumpContentType, this.projectName, this.dateStamp);
 	}
 
 }
