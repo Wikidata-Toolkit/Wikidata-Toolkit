@@ -72,8 +72,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jacksonVersion>2.20.0</jacksonVersion>
-		<okhttpVersion>5.2.1</okhttpVersion>
+		<jacksonVersion>2.20.1</jacksonVersion>
+		<okhttpVersion>5.3.0</okhttpVersion>
 	</properties>
 
 	<dependencyManagement>
