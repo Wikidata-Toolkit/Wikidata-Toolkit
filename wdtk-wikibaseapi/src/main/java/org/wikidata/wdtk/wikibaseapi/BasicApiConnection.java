@@ -32,7 +32,7 @@ import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.wikidata.wdtk.wikibaseapi.apierrors.TokenErrorException;
 
 import static org.wikidata.wdtk.wikibaseapi.LoginValue.*;
@@ -155,7 +155,7 @@ public class BasicApiConnection extends ApiConnection {
 			throws LoginFailedException {
 		login(username, password, this::confirmLogin);
 	}
-	
+
 	/**
 	 * Logs in using the main user credentials. After successful login, the
 	 * API connection remains in a logged in state, and future actions will be
@@ -172,7 +172,7 @@ public class BasicApiConnection extends ApiConnection {
 
 	/***
 	 * Login function that contains token logic and a function as parameter
-	 * 
+	 *
 	 * @param username the name of the user to log in
 	 * @param password the password of the user
 	 * @param loginFunction the functional interface to log in with
@@ -219,7 +219,7 @@ public class BasicApiConnection extends ApiConnection {
 
 		JsonNode root = sendJsonRequest("POST", params);
 
-		String result = root.path("login").path("result").textValue();
+		String result = root.path("login").path("result").stringValue();
 		if (LOGIN_RESULT_SUCCESS.getLoginText().equals(result)) {
 			this.loggedIn = true;
 			this.username = username;
@@ -227,8 +227,8 @@ public class BasicApiConnection extends ApiConnection {
 		} else {
 			String message = null;
 			if (FAILED.getLoginText().equals(result)) {
-				message = root.path("login").path("reason").textValue();
-			} 
+				message = root.path("login").path("reason").stringValue();
+			}
 			if (message == null) { // Not 'FAILED' or no 'reason' node
 				message = LoginValue.of(result).getMessage(result);
 			}
@@ -266,7 +266,7 @@ public class BasicApiConnection extends ApiConnection {
 
 		JsonNode root = sendJsonRequest("POST", params);
 
-		String result = root.path("clientlogin").path("status").textValue();
+		String result = root.path("clientlogin").path("status").stringValue();
 		if ("PASS".equals(result)) {
 			this.loggedIn = true;
 			this.username = username;
@@ -274,9 +274,9 @@ public class BasicApiConnection extends ApiConnection {
 		} else {
 			String messagecode;
 			if ("FAIL".equals(result)) {
-				messagecode = root.path("clientlogin").path("messagecode").textValue();
+				messagecode = root.path("clientlogin").path("messagecode").stringValue();
 			} else {
-				messagecode = root.path("error").path("code").textValue();
+				messagecode = root.path("error").path("code").stringValue();
 			}
 			String message = LoginValue.of(messagecode).getMessage(messagecode);
 			logger.warn(message);
@@ -311,6 +311,7 @@ public class BasicApiConnection extends ApiConnection {
 	 *
 	 * @throws IOException
 	 */
+	@Override
 	public void logout() throws IOException, MediaWikiApiErrorException {
 		if (this.loggedIn) {
 			Map<String, String> params = new HashMap<>();

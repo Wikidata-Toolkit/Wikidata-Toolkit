@@ -21,7 +21,7 @@ package org.wikidata.wdtk.datamodel.implementation;
  */
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import org.wikidata.wdtk.datamodel.helpers.Equality;
 import org.wikidata.wdtk.datamodel.helpers.Hash;
 import org.wikidata.wdtk.datamodel.helpers.ToString;

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,10 +40,9 @@ import org.wikidata.wdtk.datamodel.interfaces.MediaInfoIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.SiteLink;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Java implementation of the wbgetentities action.
@@ -67,7 +65,7 @@ public class WbGetEntitiesAction {
 	/**
 	 * Mapper object used for deserializing JSON data.
 	 */
-	final ObjectMapper mapper;
+	final JsonMapper mapper;
 
 	/**
 	 * Creates an object to fetch data from the given ApiConnection. The site
@@ -202,16 +200,12 @@ public class WbGetEntitiesAction {
 		JsonNode root = this.connection.sendJsonRequest("POST", parameters);
 
 		JsonNode entities = root.path("entities");
-		Iterator<Entry<String,JsonNode>> entitiesIterator = entities.fields();
 		int i = 0;
-		while(entitiesIterator.hasNext()) {
-			Entry<String,JsonNode> entry = entitiesIterator.next();
+		for (Entry<String,JsonNode> entry : entities.properties()) {
 			JsonNode entityNode = entry.getValue();
 			if(!entityNode.has("missing")) {
 				try {
-					EntityDocument ed = mapper.reader()
-							.with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)
-							.treeToValue(entityNode, EntityDocumentImpl.class);
+					EntityDocument ed = mapper.treeToValue(entityNode, EntityDocumentImpl.class);
 
 					if (titles == null) {
 						// We use the JSON key rather than the id of the value
@@ -224,16 +218,16 @@ public class WbGetEntitiesAction {
 								result.put(siteLink.getPageTitle(), ed);
 							}
 						} else if(ed instanceof MediaInfoDocument) {
-							result.put(entityNode.get("title").textValue(), ed);
+							result.put(entityNode.get("title").stringValue(), ed);
 						}
 					}
-				} catch (JsonProcessingException e) {
+				} catch (JacksonException e) {
 					throw new MalformedResponseException(
-							"Error when reading JSON for entity " + entityNode.path("id").asText("UNKNOWN"), e);
+							"Error when reading JSON for entity " + entityNode.path("id").asString("UNKNOWN"), e);
 				}
 			} else if(entityNode.has("id")) {
 				try {
-					EntityIdValue entityIdValue = EntityIdValueImpl.fromId(entityNode.get("id").asText(), siteIri);
+					EntityIdValue entityIdValue = EntityIdValueImpl.fromId(entityNode.get("id").asString(), siteIri);
 					if(entityIdValue instanceof MediaInfoIdValue) {
 						//TODO: bad hack, it would be much nicer if the API would return the page title
                                                 MediaInfoDocument emptyDocument = Datamodel.makeMediaInfoDocument((MediaInfoIdValue) entityIdValue);
@@ -247,7 +241,7 @@ public class WbGetEntitiesAction {
 					}
 				} catch (IllegalArgumentException e) {
 					throw new MalformedResponseException(
-							"Invalid entity id returned: " + entityNode.get("id").asText(), e);
+							"Invalid entity id returned: " + entityNode.get("id").asString(), e);
 				}
 			}
 			i++;

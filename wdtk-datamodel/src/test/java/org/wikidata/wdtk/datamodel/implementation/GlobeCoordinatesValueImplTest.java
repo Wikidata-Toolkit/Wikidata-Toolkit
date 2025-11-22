@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,16 +22,16 @@ package org.wikidata.wdtk.datamodel.implementation;
 
 import static org.junit.Assert.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.interfaces.GlobeCoordinatesValue;
+
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 
 public class GlobeCoordinatesValueImplTest {
 
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final JsonMapper mapper = new JsonMapper();
 
 	private final GlobeCoordinatesValue c1 = new GlobeCoordinatesValueImpl(12.3, 14.1,
 			GlobeCoordinatesValue.PREC_DEGREE,
@@ -48,10 +48,10 @@ public class GlobeCoordinatesValueImplTest {
 
 	@Test
 	public void dataIsCorrect() {
-		assertEquals(c1.getLatitude(), 12.3, 0);
-		assertEquals(c1.getLongitude(), 14.1, 0);
-		assertEquals(c1.getPrecision(), GlobeCoordinatesValue.PREC_DEGREE, 0);
-		assertEquals(c1.getGlobe(), GlobeCoordinatesValue.GLOBE_EARTH);
+		assertEquals(12.3, c1.getLatitude(), 0);
+		assertEquals(14.1, c1.getLongitude(), 0);
+		assertEquals(GlobeCoordinatesValue.PREC_DEGREE, c1.getPrecision(), 0);
+		assertEquals(GlobeCoordinatesValue.GLOBE_EARTH, c1.getGlobe());
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class GlobeCoordinatesValueImplTest {
 	}
 
 	@Test
-	public void testToJson() throws JsonProcessingException {
+	public void testToJson() {
 		JsonComparator.compareJsonStrings(JSON_GLOBE_COORDINATES_VALUE, mapper.writeValueAsString(c1));
 	}
 

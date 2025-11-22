@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ package org.wikidata.wdtk.datamodel.helpers;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,15 +44,15 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 import org.wikidata.wdtk.datamodel.interfaces.StatementGroup;
 import org.wikidata.wdtk.datamodel.interfaces.StatementRank;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.MappingIterator;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 
 public class JsonSerializerTest {
 
 	@Test
-	public void testSerializer() throws IOException {
+	public void testSerializer() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		JsonSerializer serializer = new JsonSerializer(out);
 
@@ -102,7 +101,7 @@ public class JsonSerializerTest {
 	}
 
 	@Test
-	public void testItemDocumentToJson() throws JsonProcessingException {
+	public void testItemDocumentToJson() {
 		ItemDocument id = Datamodel.makeItemDocument(
 				Datamodel.makeWikidataItemIdValue("Q42"),
 				Collections.emptyList(),
@@ -115,7 +114,7 @@ public class JsonSerializerTest {
 	}
 
 	@Test
-	public void testPropertyDocumentToJson() throws JsonProcessingException {
+	public void testPropertyDocumentToJson() {
 		PropertyDocument pd = Datamodel.makePropertyDocument(
 				Datamodel.makeWikidataPropertyIdValue("P1"),
 				Collections. emptyList(),
@@ -128,7 +127,7 @@ public class JsonSerializerTest {
 	}
 
 	@Test
-	public void testStatementToJson() throws JsonProcessingException {
+	public void testStatementToJson() {
 		Statement s = Datamodel.makeStatement(ItemIdValue.NULL,
 				Datamodel.makeNoValueSnak(Datamodel.makeWikidataPropertyIdValue("P1")),
 				Collections.emptyList(), Collections.emptyList(),
@@ -212,6 +211,6 @@ public class JsonSerializerTest {
 			}
 		};
 
-		assertThrows(JsonProcessingException.class, () -> JsonSerializer.getJsonString(obj));
+		assertThrows(JacksonException.class, () -> JsonSerializer.getJsonString(obj));
 	}
 }

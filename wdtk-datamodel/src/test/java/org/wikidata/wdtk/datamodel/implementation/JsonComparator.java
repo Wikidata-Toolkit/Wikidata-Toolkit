@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,12 +20,10 @@ package org.wikidata.wdtk.datamodel.implementation;
  * #L%
  */
 
-import java.io.IOException;
-
 import org.junit.Assert;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * A helper class for comparing JSON objects to each other.
@@ -34,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JsonComparator {
 
-	private static final ObjectMapper mapper = new ObjectMapper();
+	private static final JsonMapper mapper = new JsonMapper();
 
 	/**
 	 * Compares two JSON objects represented by Strings to each other. Both
@@ -42,12 +40,8 @@ public class JsonComparator {
 	 * tree is build and both trees are compared.
 	 */
 	public static void compareJsonStrings(String expected, String actual) {
-		try {
-			JsonNode tree1 = mapper.readTree(expected);
-			JsonNode tree2 = mapper.readTree(actual);
-			Assert.assertEquals(tree1, tree2);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		JsonNode tree1 = mapper.readTree(expected);
+		JsonNode tree2 = mapper.readTree(actual);
+		Assert.assertEquals(tree1, tree2);
 	}
 }

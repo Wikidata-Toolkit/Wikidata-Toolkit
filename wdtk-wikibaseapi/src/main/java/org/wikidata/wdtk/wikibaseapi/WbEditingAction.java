@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,9 +35,8 @@ import org.wikidata.wdtk.wikibaseapi.apierrors.MaxlagErrorException;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 import org.wikidata.wdtk.wikibaseapi.apierrors.TokenErrorException;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Java implementation for the wbeditentity API action.
@@ -60,11 +59,11 @@ public class WbEditingAction {
      * The IRI that identifies the site that the data is from.
      */
 	final String siteIri;
-	
+
 	/**
 	 * Mapper object used for deserializing JSON data.
 	 */
-	final ObjectMapper mapper;
+	final JsonMapper mapper;
 
 	/**
 	 * Value in seconds of MediaWiki's maxlag parameter. Shorter is nicer,
@@ -81,7 +80,7 @@ public class WbEditingAction {
 	/**
 	 * Initial wait time in milliseconds, when an edit fails for the first
 	 * time because of a high lag. This wait time is going to be multiplied
-	 * by maxLagBackOffFactor for the subsequent waits. 
+	 * by maxLagBackOffFactor for the subsequent waits.
 	 */
 	int maxLagFirstWaitTime = 1000;
 
@@ -90,7 +89,7 @@ public class WbEditingAction {
 	 * multiplied at each attempt.
 	 */
 	double maxLagBackOffFactor = 1.5;
-	
+
 	/**
 	 * Number of recent editing times to monitor in order to avoid editing too
 	 * fast. Wikidata.org seems to block fast editors after 9 edits, so this
@@ -163,7 +162,7 @@ public class WbEditingAction {
 	public void setMaxLag(int maxLag) {
 		this.maxLag = maxLag;
 	}
-	
+
 	/**
 	 * Returns the number of edits that will be performed before entering
 	 * simulation mode, or -1 if there is no limit on the number of edits
@@ -304,12 +303,12 @@ public class WbEditingAction {
 		if (clear) {
 			parameters.put("clear", "");
 		}
-		
+
 		JsonNode response = performAPIAction("wbeditentity", id, site, title,
 				newEntity, parameters, summary, tags, baserevid, bot);
 		return getEntityDocumentFromResponse(response);
 	}
-	
+
 	/**
 	 * Executes the API action "wbsetlabel" for the given parameters.
 	 * @param id
@@ -364,7 +363,7 @@ public class WbEditingAction {
 					throws IOException, MediaWikiApiErrorException {
 		Validate.notNull(language,
 				"Language parameter cannot be null when setting a label");
-		
+
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("language", language);
 		if (value != null) {
@@ -374,7 +373,7 @@ public class WbEditingAction {
 		return performAPIAction("wbsetlabel", id, site, title, newEntity,
 				parameters, summary, tags, baserevid, bot);
 	}
-	
+
 	/**
 	 * Executes the API action "wbsetlabel" for the given parameters.
 	 * @param id
@@ -430,7 +429,7 @@ public class WbEditingAction {
 					throws IOException, MediaWikiApiErrorException {
 		Validate.notNull(language,
 				"Language parameter cannot be null when setting a description");
-		
+
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("language", language);
 		if (value != null) {
@@ -440,10 +439,10 @@ public class WbEditingAction {
 		return performAPIAction("wbsetdescription", id, site, title,
 				newEntity, parameters, summary, tags, baserevid, bot);
 	}
-	
+
 	/**
 	 * Executes the API action "wbsetaliases" for the given parameters.
-	 * 
+	 *
 	 * @param id
 	 *            the id of the entity to be edited; if used, the site and title
 	 *            parameters must be null
@@ -506,7 +505,7 @@ public class WbEditingAction {
 					throws IOException, MediaWikiApiErrorException {
 		Validate.notNull(language,
 				"Language parameter cannot be null when setting aliases");
-		
+
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("language", language);
 		if (set != null) {
@@ -525,10 +524,10 @@ public class WbEditingAction {
 
 		return performAPIAction("wbsetaliases", id, site, title, newEntity, parameters, summary, tags, baserevid, bot);
 	}
-	
+
 	/**
 	 * Executes the API action "wbsetclaim" for the given parameters.
-	 * 
+	 *
 	 * @param statement
 	 *            the JSON serialization of claim to add or delete.
      * @param bot
@@ -563,17 +562,17 @@ public class WbEditingAction {
 					throws IOException, MediaWikiApiErrorException {
 		Validate.notNull(statement,
 				"Statement parameter cannot be null when adding or changing a statement");
-		
-		
+
+
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("claim", statement);
-		
+
 		return performAPIAction("wbsetclaim", null, null, null, null, parameters, summary, tags, baserevid, bot);
 	}
-	
+
 	/**
 	 * Executes the API action "wbremoveclaims" for the given parameters.
-	 * 
+	 *
 	 * @param statementIds
 	 *            the statement ids to delete
 	 * @param bot
@@ -612,13 +611,13 @@ public class WbEditingAction {
 				"statement ids to delete must be non-empty when deleting statements");
 		Validate.isTrue(statementIds.size() <= 50,
 				"At most 50 statements can be deleted at once");
-		
+
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("claim", String.join("|", statementIds));
-		
+
 		return performAPIAction("wbremoveclaims", null, null, null, null, parameters, summary, tags, baserevid, bot);
 	}
-	
+
 	/**
 	 * Executes an editing API action for the given parameters. The resulting
 	 * entity returned by Wikibase is returned as a result.
@@ -682,9 +681,9 @@ public class WbEditingAction {
 			long baserevid,
 			boolean bot)
 			throws IOException, MediaWikiApiErrorException {
-		
+
 		parameters.put(ApiConnection.PARAM_ACTION, action);
-		
+
 		if (newEntity != null) {
 			parameters.put("new", newEntity);
 			if (title != null || site != null || id != null) {
@@ -708,19 +707,19 @@ public class WbEditingAction {
 			throw new IllegalArgumentException(
 					"This action must create a new item, or specify an id, or specify a site and title.");
 		}
-		
+
 		if (bot) {
 			parameters.put("bot", "");
 		}
-		
+
 		if (baserevid != 0) {
 			parameters.put("baserevid", Long.toString(baserevid));
 		}
-		
+
 		if (summary != null) {
 			parameters.put("summary", summary);
 		}
-		
+
 		if (tags != null && !tags.isEmpty()) {
 			parameters.put("tags", String.join("|", tags));
 		}
@@ -738,7 +737,7 @@ public class WbEditingAction {
 
 		checkEditSpeed();
 		JsonNode result = null;
-		
+
 		int retry = getMaxLagMaxRetries();
 		int maxLagSleepTime = getMaxLagFirstWaitTime();
 		MediaWikiApiErrorException lastException = null;
@@ -771,7 +770,7 @@ public class WbEditingAction {
 
 		return result;
 	}
-	
+
 	/**
 	 * TODO: TO BE REFACTORED
 	 * @param root
@@ -796,7 +795,7 @@ public class WbEditingAction {
 					"No entity document found in API response.");
 		}
 	}
-	
+
 	/**
 	 * Parse a JSON response to extract an entity document.
 	 * <p>
@@ -810,9 +809,7 @@ public class WbEditingAction {
 	 * @throws IOException
 	 */
 	private EntityDocument parseJsonResponse(JsonNode entityNode) throws IOException {
-		return mapper.readerFor(EntityDocumentImpl.class)
-				.with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)
-				.readValue(entityNode);
+		return mapper.readerFor(EntityDocumentImpl.class).readValue(entityNode);
 	}
 
 	/**
@@ -843,7 +840,7 @@ public class WbEditingAction {
 		this.recentEditTimes[nextIndex] = currentTime;
 		this.curEditTimeSlot = nextIndex;
 	}
-	
+
 	/**
 	 * Number of times we should retry if an editing action fails because
 	 * the lag is too high.
@@ -863,7 +860,7 @@ public class WbEditingAction {
 	/**
 	 * Initial wait time in milliseconds, when an edit fails for the first
 	 * time because of a high lag. This wait time is going to be multiplied
-	 * by maxLagBackOffFactor for the subsequent waits. 
+	 * by maxLagBackOffFactor for the subsequent waits.
 	 */
 	public int getMaxLagFirstWaitTime() {
 		return maxLagFirstWaitTime;
@@ -872,7 +869,7 @@ public class WbEditingAction {
 	/**
 	 * Initial wait time in milliseconds, when an edit fails for the first
 	 * time because of a high lag. This wait time is going to be multiplied
-	 * by maxLagBackOffFactor for the subsequent waits. 
+	 * by maxLagBackOffFactor for the subsequent waits.
 	 */
 	public void setMaxLagFirstWaitTime(int time) {
 		maxLagFirstWaitTime = time;
@@ -896,13 +893,13 @@ public class WbEditingAction {
 
 	/**
 	 * Retrieves the current lag from the target site, by making an API call.
-	 * 
+	 *
 	 * @throws MediaWikiApiErrorException
 	 * 		when an unexpected MediaWiki API error happened (not the spurious
 	 *      one normally returned by MediaWiki when retrieving lag).
 	 * @throws IOException
 	 *      when communication with the server failed.
-	 *      
+	 *
 	 */
 	public double getCurrentLag() throws IOException, MediaWikiApiErrorException {
 		Map<String,String> parameters = new HashMap<>();

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,14 +24,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
-import java.io.IOException;
-
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
 import org.wikidata.wdtk.datamodel.interfaces.EntityIdValue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 public class SenseIdValueImplTest {
 
@@ -116,17 +113,17 @@ public class SenseIdValueImplTest {
 	}
 
 	@Test
-	public void testToJson() throws JsonProcessingException {
+	public void testToJson() {
 		JsonComparator.compareJsonStrings(JSON_SENSE_ID_VALUE, mapper.writeValueAsString(sense1));
 	}
 
 	@Test
-	public void testToJava() throws IOException {
+	public void testToJava() {
 		assertEquals(sense1, mapper.readValue(JSON_SENSE_ID_VALUE, ValueImpl.class));
 	}
 
 	@Test
-	public void testToJavaWithoutNumericalID() throws IOException {
+	public void testToJavaWithoutNumericalID() {
 		assertEquals(sense1, mapper.readValue(JSON_SENSE_ID_VALUE_WITHOUT_TYPE, ValueImpl.class));
 	}
 

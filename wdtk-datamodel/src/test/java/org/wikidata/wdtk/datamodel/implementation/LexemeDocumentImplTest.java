@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,15 +20,12 @@ package org.wikidata.wdtk.datamodel.implementation;
  * #L%
  */
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.Datamodel;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
 import org.wikidata.wdtk.datamodel.interfaces.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -300,17 +297,17 @@ public class LexemeDocumentImplTest {
 	}
 
 	@Test
-	public void testLexemeToJson() throws JsonProcessingException {
+	public void testLexemeToJson() {
 		JsonComparator.compareJsonStrings(JSON_LEXEME, mapper.writeValueAsString(ld1));
 	}
 
 	@Test
-	public void testLexemeToJava() throws IOException {
+	public void testLexemeToJava() {
 		assertEquals(ld1, mapper.readValue(JSON_LEXEME, LexemeDocumentImpl.class));
 	}
 
 	@Test
-	public void testDeserializeLexemeWithJsonObjectInPlaceOfEmptyList() throws JsonProcessingException {
+	public void testDeserializeLexemeWithJsonObjectInPlaceOfEmptyList() {
 		// test for https://github.com/Wikidata/Wikidata-Toolkit/issues/568
 		// phab: https://phabricator.wikimedia.org/T305660
 		assertEquals(ld3, mapper.readValue(JSON_LEXEME_FOR_ISSUE_568, LexemeDocumentImpl.class));

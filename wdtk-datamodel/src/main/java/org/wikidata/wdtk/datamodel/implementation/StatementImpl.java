@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,14 +21,14 @@ package org.wikidata.wdtk.datamodel.implementation;
  */
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.Validate;
 import org.wikidata.wdtk.datamodel.helpers.Equality;
 import org.wikidata.wdtk.datamodel.helpers.Hash;
@@ -36,7 +36,6 @@ import org.wikidata.wdtk.datamodel.helpers.ToString;
 import org.wikidata.wdtk.datamodel.interfaces.*;
 import org.wikidata.wdtk.util.NestedIterator;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -117,9 +116,7 @@ public class StatementImpl implements Statement {
 		}
 
 		this.references = (references == null) ? Collections.emptyList() : references;
-		Validate.notNull(subjectId);
-
-		this.subjectId = subjectId;
+		this.subjectId = Objects.requireNonNull(subjectId);
 	}
 
 	public StatementImpl(
@@ -138,8 +135,7 @@ public class StatementImpl implements Statement {
 		this.qualifiers = (qualifiers == null) ? Collections.emptyMap() : qualifiers;
 		this.qualifiersOrder = (qualifiersOrder == null) ? Collections.emptyList() : qualifiersOrder;
 		this.references = (references == null) ? Collections.emptyList() : references;
-		Validate.notNull(subjectId);
-		this.subjectId = subjectId;
+		this.subjectId = Objects.requireNonNull(subjectId);
 	}
 
 	/**
@@ -251,7 +247,7 @@ public class StatementImpl implements Statement {
 				getReferences(),
 				getSubject());
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Hash.hashCode(this);
@@ -335,10 +331,10 @@ public class StatementImpl implements Statement {
 	 * necessary since Java enumerations are in upper case but the Json counterpart
 	 * is in lower case.
 	 */
-	static class StatementRankSerializer extends JsonSerializer<StatementRank> {
+	static class StatementRankSerializer extends ValueSerializer<StatementRank> {
 
 		@Override
-		public void serialize(StatementRank value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+		public void serialize(StatementRank value, JsonGenerator jgen, SerializationContext provider) {
 			jgen.writeString(value.name().toLowerCase());
 
 		}
@@ -349,11 +345,11 @@ public class StatementImpl implements Statement {
 	 * necessary since Java enumerations are in upper case but the Json counterpart
 	 * is in lower case.
 	 */
-	static class StatementRankDeserializer extends JsonDeserializer<StatementRank> {
+	static class StatementRankDeserializer extends ValueDeserializer<StatementRank> {
 
 		@Override
-		public StatementRank deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-			return StatementRank.valueOf(jp.getText().toUpperCase());
+		public StatementRank deserialize(JsonParser jp, DeserializationContext ctxt) {
+			return StatementRank.valueOf(jp.getString().toUpperCase());
 		}
 	}
 }

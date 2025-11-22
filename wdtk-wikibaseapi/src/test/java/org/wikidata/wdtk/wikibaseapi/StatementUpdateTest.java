@@ -9,9 +9,9 @@ package org.wikidata.wdtk.wikibaseapi;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -42,9 +41,8 @@ import org.wikidata.wdtk.datamodel.interfaces.Reference;
 import org.wikidata.wdtk.datamodel.interfaces.Statement;
 import org.wikidata.wdtk.datamodel.interfaces.StatementRank;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Deprecated
 public class StatementUpdateTest {
@@ -217,7 +215,7 @@ public class StatementUpdateTest {
 	}
 
 	@Test
-	public void testAddStatements() throws JsonProcessingException {
+	public void testAddStatements() {
 		// Inserting new P2 statements won't touch existing P1 statement
 		Statement s1 = StatementBuilder.forSubjectAndProperty(Q1, P1)
 				.withValue(Q1).withId("ID-s1").build();
@@ -306,7 +304,7 @@ public class StatementUpdateTest {
 		assertFalse(su.toKeep.get(P1).get(1).write);
 		assertFalse(su.isEmptyEdit());
 	}
-	
+
 	@Test
 	public void testNullEdit() {
 		Statement s1 = StatementBuilder.forSubjectAndProperty(Q1, P1)
@@ -315,14 +313,14 @@ public class StatementUpdateTest {
 				.withValue(Q1).build();
 		Statement s2 = StatementBuilder.forSubjectAndProperty(Q1, P1)
 				.withValue(Q1).withId("ID-s2").build();
-		
+
 		ItemDocument currentDocument = ItemDocumentBuilder.forItemId(Q1)
 				.withStatement(s1).build();
-		
+
 		StatementUpdate su = new StatementUpdate(currentDocument,
 				Collections.singletonList(s1dup), Collections.singletonList(s2));
 		assertTrue(su.isEmptyEdit());
-		
+
 	}
 
 	@Test
@@ -349,7 +347,7 @@ public class StatementUpdateTest {
 	}
 
 	@Test
-	public void testDelete() throws IOException {
+	public void testDelete() {
 		Statement s1 = StatementBuilder.forSubjectAndProperty(Q1, P1)
 				.withValue(Q1).withId("ID-s1").build();
 		Statement s2 = StatementBuilder.forSubjectAndProperty(Q1, P1)
@@ -372,7 +370,7 @@ public class StatementUpdateTest {
 		StatementUpdate su = new StatementUpdate(currentDocument,
 				Collections.emptyList(), Arrays.asList(s2, s3, s4,
 						s5));
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode expectedJson = mapper.readTree("{\"claims\":[{\"id\":\"ID-s2\",\"remove\":\"\"},{\"id\":\"ID-s5\",\"remove\":\"\"}]}");
 		JsonNode actualJson = mapper.readTree(su.getJsonUpdateString());

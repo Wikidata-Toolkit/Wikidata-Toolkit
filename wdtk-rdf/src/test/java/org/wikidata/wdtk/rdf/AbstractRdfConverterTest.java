@@ -9,9 +9,9 @@ package org.wikidata.wdtk.rdf;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ package org.wikidata.wdtk.rdf;
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.Datamodel;
 import org.wikidata.wdtk.datamodel.implementation.DatatypeIdImpl;
-import org.wikidata.wdtk.datamodel.interfaces.DatatypeIdValue;
 
 import static org.junit.Assert.assertEquals;
 
@@ -111,7 +110,7 @@ public class AbstractRdfConverterTest {
                 AbstractRdfConverter.getDatatypeIri(Datamodel.makeDatatypeIdValueFromJsonString(DatatypeIdImpl.JSON_DT_MONOLINGUAL_TEXT)),
                 Vocabulary.DT_MONOLINGUAL_TEXT);
     }
-    
+
     @Test
     public void testIriForEdtf() {
         assertEquals(

@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,9 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
+
 import org.apache.commons.lang3.Validate;
 import org.wikidata.wdtk.datamodel.helpers.Equality;
 import org.wikidata.wdtk.datamodel.helpers.Hash;
@@ -54,9 +57,8 @@ public class EntityRedirectDocumentImpl implements EntityRedirectDocument  {
 	 * 		the id of the last revision of this document
 	 */
 	EntityRedirectDocumentImpl(EntityIdValue id, EntityIdValue targetId, long revisionId) {
-		Validate.notNull(id);
-		this.entityId = id;
-		Validate.notNull(targetId);
+		this.entityId = Objects.requireNonNull(id);
+		Objects.requireNonNull(targetId);
 		Validate.isTrue(id.getEntityType().equals(targetId.getEntityType()), "You could only do redirects between entities of the same type");
 		this.targetId = targetId;
 		this.revisionId = revisionId;
@@ -72,7 +74,7 @@ public class EntityRedirectDocumentImpl implements EntityRedirectDocument  {
 			@JsonProperty("lastrevid") long revisionId,
 			@JacksonInject("siteIri") String siteIri) {
 		this.entityId = EntityIdValueImpl.fromId(jsonId, siteIri);
-		Validate.notNull(jsonTargetId);
+		Objects.requireNonNull(jsonTargetId);
 		this.targetId = EntityIdValueImpl.fromId(jsonTargetId, siteIri);
 		Validate.isTrue(getEntityId().getEntityType().equals(targetId.getEntityType()), "You could only do redirects between entities of the same type");
 		this.revisionId = revisionId;

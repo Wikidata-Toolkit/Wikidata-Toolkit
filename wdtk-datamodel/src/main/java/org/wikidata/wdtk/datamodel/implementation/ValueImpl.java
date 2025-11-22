@@ -1,11 +1,10 @@
 package org.wikidata.wdtk.datamodel.implementation;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /*
  * #%L
@@ -16,9 +15,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,9 +29,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.wikidata.wdtk.datamodel.interfaces.Value;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.io.IOException;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Abstract Jackson implementation of {@link Value}.
@@ -105,21 +102,14 @@ public abstract class ValueImpl implements Value {
 	 */
 	static class JacksonDeserializer extends StdDeserializer<ValueImpl> {
 
-		private static final long serialVersionUID = 6659522064661507680L;
-
 		JacksonDeserializer() {
 			super(ValueImpl.class);
 		}
 
 		@Override
-		public ValueImpl deserialize(JsonParser jsonParser,
-				DeserializationContext ctxt) throws IOException {
-
-			ObjectCodec mapper = jsonParser.getCodec();
-			JsonNode root = mapper.readTree(jsonParser);
-			Class<? extends ValueImpl> valueClass = getValueClass(root, jsonParser);
-
-			return mapper.treeToValue(root, valueClass);
+		public ValueImpl deserialize(JsonParser jsonParser, DeserializationContext ctxt) {
+			JsonNode root = jsonParser.objectReadContext().readTree(jsonParser);
+			return ctxt.readValue(ctxt.treeAsTokens(root), getValueClass(root, jsonParser));
 		}
 
 		/**
@@ -129,12 +119,11 @@ public abstract class ValueImpl implements Value {
 		 * @param jsonNode
 		 *            the JSON node that represents the value to deserialize
 		 * @return the Java class to use for deserialization
-		 * @throws JsonMappingException
+		 * @throws DatabindException
 		 *             if we do not have a class for the given JSON
 		 */
-		private Class<? extends ValueImpl> getValueClass(JsonNode jsonNode, JsonParser jsonParser)
-				throws JsonMappingException {
-			String jsonType = jsonNode.get("type").asText();
+		private Class<? extends ValueImpl> getValueClass(JsonNode jsonNode, JsonParser jsonParser) {
+			String jsonType = jsonNode.get("type").asString();
 
 			switch (jsonType) {
 			case JSON_VALUE_TYPE_ENTITY_ID:
@@ -142,20 +131,20 @@ public abstract class ValueImpl implements Value {
 				if (valueNode != null) {
 					if(valueNode.has("entity-type")) {
 						try {
-							return getValueClassFromEntityType(valueNode.get("entity-type").asText());
+							return getValueClassFromEntityType(valueNode.get("entity-type").asString());
 						} catch (IllegalArgumentException e) {
 							return UnsupportedEntityIdValueImpl.class;
 						}
 					} else if(valueNode.has("id")) {
 						try {
 							return getValueClassFromEntityType(
-									EntityIdValueImpl.guessEntityTypeFromId(valueNode.get("id").asText(),true)
+									EntityIdValueImpl.guessEntityTypeFromId(valueNode.get("id").asString(),true)
 							);
 						} catch (IllegalArgumentException e) {
 							return UnsupportedEntityIdValueImpl.class;
 						}
 					} else {
-						throw new JsonMappingException(jsonParser, "Unexpected entity id serialization");
+						throw DatabindException.from(jsonParser, "Unexpected entity id serialization");
 					}
 
 				}

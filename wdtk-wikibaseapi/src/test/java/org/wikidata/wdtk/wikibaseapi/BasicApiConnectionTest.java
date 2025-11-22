@@ -54,14 +54,15 @@ import org.wikidata.wdtk.wikibaseapi.apierrors.MaxlagErrorException;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiErrorMessage;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.Assert.*;
 
 public class BasicApiConnectionTest {
 
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final JsonMapper mapper = JsonMapper.builder().disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
 
 	private static MockWebServer server;
 	private BasicApiConnection connection;
@@ -115,7 +116,7 @@ public class BasicApiConnectionTest {
 						case "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password&format=json&action=login&lgname=username":
 							return makeJsonResponseFrom("/loginSuccess.json");
 						case "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password1&format=json&action=login&lgname=username1":
-							return makeJsonResponseFrom("/loginError.json"); 
+							return makeJsonResponseFrom("/loginError.json");
 						case "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password2&format=json&action=login&lgname=username":
 							return makeJsonResponseFrom("/loginFailed.json");
 						case "meta=tokens&assert=user&format=json&action=query&type=csrf":
@@ -159,13 +160,13 @@ public class BasicApiConnectionTest {
 	}
 
 	@Test
-	public void testGetToken() throws LoginFailedException, IOException, MediaWikiApiErrorException, InterruptedException {
+	public void testGetToken() throws LoginFailedException, IOException, MediaWikiApiErrorException {
 		connection.login("username", "password");
 		assertNotNull(connection.getOrFetchToken("csrf"));
 	}
 
 	@Test
-	public void testGetLoginToken() throws IOException, MediaWikiApiErrorException, InterruptedException, LoginFailedException {
+	public void testGetLoginToken() throws IOException, MediaWikiApiErrorException {
 		assertNotNull(connection.getOrFetchToken("login"));
 	}
 
@@ -199,9 +200,8 @@ public class BasicApiConnectionTest {
 		assertTrue(connection.isLoggedIn());
 	}
 
-
 	@Test
-	public void testSerialize() throws LoginFailedException, IOException {
+	public void testSerialize() throws LoginFailedException {
 		connection.login("username", "password");
 		connection.setConnectTimeout(5000);
 		connection.setReadTimeout(6000);
@@ -215,7 +215,7 @@ public class BasicApiConnectionTest {
 	}
 
 	@Test
-	public void testDeserialize() throws IOException {
+	public void testDeserialize() {
 		BasicApiConnection newConnection = mapper.readValue(LOGGED_IN_SERIALIZED_CONNECTION, BasicApiConnection.class);
 		assertTrue(newConnection.isLoggedIn());
 		assertEquals("username", newConnection.getCurrentUser());
@@ -248,8 +248,8 @@ public class BasicApiConnectionTest {
 	@Test
 	public void loginUserError() {
 		// This will fail because the user is not known
-		LoginFailedException loginFailedException = assertThrows(LoginFailedException.class, 
-				() -> connection.login("username1", "password1"));	
+		LoginFailedException loginFailedException = assertThrows(LoginFailedException.class,
+				() -> connection.login("username1", "password1"));
 		assertEquals("NotExists: Username does not exist.", loginFailedException.getMessage());
 	}
 
@@ -274,7 +274,7 @@ public class BasicApiConnectionTest {
 						+ "&action=login&lgname=username&format=json", '&'),
 				split(connection.getQueryString(params), '&'));
 	}
-	
+
 	@Test
 	public void testPostFile() throws IOException, MediaWikiApiErrorException {
 		Map<String, String> formParams = new HashMap<>();
@@ -287,13 +287,12 @@ public class BasicApiConnectionTest {
 			writer.close();
 			Map<String, ImmutablePair<String, File>> fileParams = new HashMap<>();
 			fileParams.put("file", new ImmutablePair<String,File>("hello.txt", file));
-			
+
 			JsonNode node = connection.sendJsonRequest("POST", formParams, fileParams);
-			assertEquals(node.get("success").asText(), "true");
+			assertEquals(node.get("success").asString(), "true");
 		} finally {
 			file.delete();
 		}
-		
 	}
 
 	@Test
@@ -318,7 +317,7 @@ public class BasicApiConnectionTest {
 		root = mapper.readTree(path.openStream());
 		connection.checkErrors(root);
 	}
-	
+
 	@Test
 	public void testMaxlagError() throws IOException, MediaWikiApiErrorException {
 		JsonNode root;
@@ -330,7 +329,7 @@ public class BasicApiConnectionTest {
 			assertEquals(3.45, e.getLag(), 0.001);
 		}
 	}
-	   
+
     @Test
     public void testAbuseFilterError() throws IOException, MediaWikiApiErrorException {
         JsonNode root;
@@ -384,19 +383,19 @@ public class BasicApiConnectionTest {
 	 * @throws IOException
 	 */
 	@Test
-	public void testNoTimeouts() throws IOException {
+	public void testNoTimeouts() {
 		assertEquals(-1, connection.getConnectTimeout());
 		assertEquals(-1, connection.getReadTimeout());
 	}
 
 	@Test
-	public void testConnectTimeout() throws IOException {
+	public void testConnectTimeout() {
 		connection.setConnectTimeout(5000);
 		assertEquals(5000, connection.getConnectTimeout());
 	}
 
 	@Test
-	public void testReadTimeout() throws IOException {
+	public void testReadTimeout() {
 		connection.setReadTimeout(5000);
 		assertEquals(5000, connection.getReadTimeout());
 	}

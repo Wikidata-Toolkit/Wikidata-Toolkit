@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,9 @@ package org.wikidata.wdtk.datamodel.implementation;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import org.apache.commons.lang3.Validate;
+
+import java.util.Objects;
+
 import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.datamodel.interfaces.EntityIdValue;
 
@@ -111,7 +113,7 @@ public abstract class EntityDocumentImpl implements EntityDocument {
 	 * 		the id of the last revision of this document
 	 */
 	EntityDocumentImpl(EntityIdValue id, long revisionId) {
-		Validate.notNull(id);
+		Objects.requireNonNull(id);
 		this.entityId = id.getId();
 		this.siteIri = id.getSiteIri();
 		this.revisionId = revisionId;
@@ -124,10 +126,8 @@ public abstract class EntityDocumentImpl implements EntityDocument {
 			@JsonProperty("id") String jsonId,
 			@JsonProperty("lastrevid") long revisionId,
 			@JacksonInject("siteIri") String siteIri) {
-		Validate.notNull(jsonId);
-		this.entityId = jsonId;
-		Validate.notNull(siteIri);
-		this.siteIri = siteIri;
+		this.entityId = Objects.requireNonNull(jsonId);
+		this.siteIri = Objects.requireNonNull(siteIri);
 		this.revisionId = revisionId;
 	}
 
@@ -151,7 +151,7 @@ public abstract class EntityDocumentImpl implements EntityDocument {
 	public String getSiteIri() {
 		return this.siteIri;
 	}
-	
+
 	private static class NonZeroFilter {
 		@Override
 		public boolean equals(Object other) {

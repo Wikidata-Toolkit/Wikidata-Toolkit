@@ -1,8 +1,7 @@
 package org.wikidata.wdtk.datamodel.implementation;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.apache.commons.lang3.Validate;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import org.wikidata.wdtk.datamodel.helpers.Equality;
 import org.wikidata.wdtk.datamodel.helpers.Hash;
 import org.wikidata.wdtk.datamodel.helpers.ToString;
@@ -11,6 +10,7 @@ import org.wikidata.wdtk.datamodel.interfaces.SenseIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.LexemeIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.ValueVisitor;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /*
@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -68,8 +68,7 @@ public class SenseIdValueImpl extends ValueImpl implements SenseIdValue {
 			throw new IllegalArgumentException("The string " + id + " is not a valid form id");
 		}
 		this.id = id;
-		Validate.notNull(siteIri);
-		this.siteIri = siteIri;
+		this.siteIri = Objects.requireNonNull(siteIri);
 	}
 
 	/**

@@ -9,9 +9,9 @@ package org.wikidata.wdtk.dumpfiles;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,17 +25,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
 import org.wikidata.wdtk.datamodel.implementation.EntityDocumentImpl;
 import org.wikidata.wdtk.datamodel.interfaces.*;
 
-import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectReader;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.MappingIterator;
+import tools.jackson.databind.ObjectReader;
 
 /**
  * Processor for JSON dumpfiles.
@@ -55,9 +53,7 @@ public class JsonDumpFileProcessor implements MwDumpFileProcessor {
 	public JsonDumpFileProcessor(
 			EntityDocumentProcessor entityDocumentProcessor, String siteIri) {
 		this.entityDocumentProcessor = entityDocumentProcessor;
-		this.documentReader = new DatamodelMapper(siteIri)
-				.readerFor(EntityDocumentImpl.class)
-				.with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
+		this.documentReader = new DatamodelMapper(siteIri).readerFor(EntityDocumentImpl.class);
 	}
 
 	/**
@@ -87,8 +83,8 @@ public class JsonDumpFileProcessor implements MwDumpFileProcessor {
 					handleDocument(document);
 				}
 				documentIterator.close();
-			} catch (JsonProcessingException e) {
-				logJsonProcessingException(e);
+			} catch (JacksonException e) {
+				logJacksonException(e);
 				processDumpFileContentsRecovery(inputStream);
 			}*/
 		} catch (IOException e) {
@@ -105,7 +101,7 @@ public class JsonDumpFileProcessor implements MwDumpFileProcessor {
 	 * @param exception
 	 *            the exception to log
 	 */
-	private void logJsonProcessingException(JsonProcessingException exception) {
+	private void logJacksonException(JacksonException exception) {
 		JsonDumpFileProcessor.logger
 				.error("Error when reading JSON for entity: "
 						+ exception.getMessage());
@@ -178,8 +174,8 @@ public class JsonDumpFileProcessor implements MwDumpFileProcessor {
 					document = documentReader.readValue(line);
 				}
 				handleDocument(document);
-			} catch (JsonProcessingException e) {
-				logJsonProcessingException(e);
+			} catch (JacksonException e) {
+				logJacksonException(e);
 				JsonDumpFileProcessor.logger.error("Problematic line was: "
 						+ line.substring(0, Math.min(50, line.length()))
 						+ "...");

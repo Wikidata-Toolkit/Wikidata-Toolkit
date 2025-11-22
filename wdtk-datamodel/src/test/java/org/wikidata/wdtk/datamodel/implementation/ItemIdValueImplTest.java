@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,8 +22,6 @@ package org.wikidata.wdtk.datamodel.implementation;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.Datamodel;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
@@ -31,9 +29,8 @@ import org.wikidata.wdtk.datamodel.interfaces.EntityIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.UnsupportedEntityIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.Value;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
 
 public class ItemIdValueImplTest {
 
@@ -112,40 +109,40 @@ public class ItemIdValueImplTest {
 	}
 
 	@Test
-	public void testToJson() throws JsonProcessingException {
+	public void testToJson() {
 		JsonComparator.compareJsonStrings(JSON_ITEM_ID_VALUE, mapper.writeValueAsString(item1));
 	}
 
 	@Test
-	public void testToJava() throws IOException {
+	public void testToJava() {
 		assertEquals(item1, mapper.readValue(JSON_ITEM_ID_VALUE, ValueImpl.class));
 	}
 
 	@Test
-	public void testToJavaWithoutId() throws IOException {
+	public void testToJavaWithoutId() {
 		assertEquals(item1, mapper.readValue(JSON_ITEM_ID_VALUE_WITHOUT_ID, ValueImpl.class));
 	}
 
 	@Test
-	public void testToJavaWithoutNumericalId() throws IOException {
+	public void testToJavaWithoutNumericalId() {
 		assertEquals(item1, mapper.readValue(JSON_ITEM_ID_VALUE_WITHOUT_NUMERICAL_ID, ValueImpl.class));
 	}
-	
+
 	@Test
-	public void testToJavaWrongID() throws IOException {
+	public void testToJavaWrongID() {
 		Value unsupported = mapper.readValue(JSON_ITEM_ID_VALUE_WRONG_ID, ValueImpl.class);
 		assertTrue(unsupported instanceof UnsupportedEntityIdValue);
 	}
 
 	@Test
-	public void testToJavaUnsupportedType() throws IOException {
+	public void testToJavaUnsupportedType() {
 		Value unsupported = mapper.readValue(JSON_ITEM_ID_VALUE_UNSUPPORTED_TYPE, ValueImpl.class);
 		assertTrue(unsupported instanceof UnsupportedEntityIdValue);
 		assertEquals("foo", ((UnsupportedEntityIdValue)unsupported).getEntityTypeJsonString());
 	}
-	
-	@Test(expected = JsonMappingException.class)
-	public void testToJavaUnsupportedWithoutId() throws IOException {
+
+	@Test(expected = DatabindException.class)
+	public void testToJavaUnsupportedWithoutId() {
 		mapper.readValue(JSON_ITEM_ID_VALUE_UNSUPPORTED_NO_ID, ValueImpl.class);
 	}
 

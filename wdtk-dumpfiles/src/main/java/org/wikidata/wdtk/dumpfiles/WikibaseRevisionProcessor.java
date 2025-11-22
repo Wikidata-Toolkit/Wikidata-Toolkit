@@ -9,9 +9,9 @@ package org.wikidata.wdtk.dumpfiles;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ package org.wikidata.wdtk.dumpfiles;
  * #L%
  */
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -28,8 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.wikidata.wdtk.datamodel.helpers.JsonDeserializer;
 import org.wikidata.wdtk.datamodel.interfaces.*;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
 
 /**
  * A revision processor that processes Wikibase entity content from a dump file.
@@ -97,16 +96,14 @@ public class WikibaseRevisionProcessor implements MwRevisionProcessor {
 		try {
 			ItemDocument document = jsonDeserializer.deserializeItemDocument(mwRevision.getText());
 			entityDocumentProcessor.processItemDocument(document);
-		} catch (JsonParseException e1) {
+		} catch (StreamReadException e1) {
 			logger.error("Failed to parse JSON for item "
 					+ mwRevision.getPrefixedTitle() + ": " + e1.getMessage());
-		} catch (JsonMappingException e1) {
+		} catch (DatabindException e1) {
 			logger.error("Failed to map JSON for item "
 					+ mwRevision.getPrefixedTitle() + ": " + e1.getMessage());
 			e1.printStackTrace();
 			System.out.print(mwRevision.getText());
-		} catch (IOException e1) {
-			logger.error("Failed to read revision: " + e1.getMessage());
 		}
 	}
 
@@ -119,16 +116,14 @@ public class WikibaseRevisionProcessor implements MwRevisionProcessor {
 		try {
 			PropertyDocument document = jsonDeserializer.deserializePropertyDocument(mwRevision.getText());
 			entityDocumentProcessor.processPropertyDocument(document);
-		} catch (JsonParseException e1) {
+		} catch (StreamReadException e1) {
 			logger.error("Failed to parse JSON for property "
 					+ mwRevision.getPrefixedTitle() + ": " + e1.getMessage());
-		} catch (JsonMappingException e1) {
+		} catch (DatabindException e1) {
 			logger.error("Failed to map JSON for property "
 					+ mwRevision.getPrefixedTitle() + ": " + e1.getMessage());
 			e1.printStackTrace();
 			System.out.print(mwRevision.getText());
-		} catch (IOException e1) {
-			logger.error("Failed to read revision: " + e1.getMessage());
 		}
 	}
 
@@ -141,16 +136,14 @@ public class WikibaseRevisionProcessor implements MwRevisionProcessor {
 		try {
 			LexemeDocument document = jsonDeserializer.deserializeLexemeDocument(mwRevision.getText());
 			entityDocumentProcessor.processLexemeDocument(document);
-		} catch (JsonParseException e1) {
+		} catch (StreamReadException e1) {
 			logger.error("Failed to parse JSON for lexeme "
 					+ mwRevision.getPrefixedTitle() + ": " + e1.getMessage());
-		} catch (JsonMappingException e1) {
+		} catch (DatabindException e1) {
 			logger.error("Failed to map JSON for lexeme "
 					+ mwRevision.getPrefixedTitle() + ": " + e1.getMessage());
 			e1.printStackTrace();
 			System.out.print(mwRevision.getText());
-		} catch (IOException e1) {
-			logger.error("Failed to read revision: " + e1.getMessage());
 		}
 	}
 
@@ -158,16 +151,14 @@ public class WikibaseRevisionProcessor implements MwRevisionProcessor {
 		try {
 			EntityRedirectDocument document = jsonDeserializer.deserializeEntityRedirectDocument(mwRevision.getText());
 			entityDocumentProcessor.processEntityRedirectDocument(document);
-		} catch (JsonParseException e1) {
+		} catch (StreamReadException e1) {
 			logger.error("Failed to parse JSON for redirect "
 					+ mwRevision.getPrefixedTitle() + ": " + e1.getMessage());
-		} catch (JsonMappingException e1) {
+		} catch (DatabindException e1) {
 			logger.error("Failed to map JSON for redirect "
 					+ mwRevision.getPrefixedTitle() + ": " + e1.getMessage());
 			e1.printStackTrace();
 			System.out.print(mwRevision.getText());
-		} catch (IOException e1) {
-			logger.error("Failed to read revision: " + e1.getMessage());
 		}
 	}
 

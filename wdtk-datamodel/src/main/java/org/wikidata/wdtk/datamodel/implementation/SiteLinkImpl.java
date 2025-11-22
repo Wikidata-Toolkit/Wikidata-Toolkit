@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ package org.wikidata.wdtk.datamodel.implementation;
  */
 
 import com.fasterxml.jackson.annotation.*;
-import org.apache.commons.lang3.Validate;
 import org.wikidata.wdtk.datamodel.helpers.Equality;
 import org.wikidata.wdtk.datamodel.helpers.Hash;
 import org.wikidata.wdtk.datamodel.helpers.ToString;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Jackson implementation of {@link SiteLink}.
@@ -50,7 +50,7 @@ public class SiteLinkImpl implements SiteLink {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param title
 	 * 		the title of the page on the target site
 	 * @param site
@@ -63,10 +63,8 @@ public class SiteLinkImpl implements SiteLink {
 			String title,
 			String site,
 			List<ItemIdValue> badges) {
-		Validate.notNull(title);
-		this.title = title;
-		Validate.notNull(site);
-		this.site = site;
+		this.title = Objects.requireNonNull(title);
+		this.site = Objects.requireNonNull(site);
 		this.badges = (badges == null) ? Collections.emptyList() : badges;
 		this.badges.sort(Comparator.comparing(EntityIdValue::getId));
 	}
@@ -89,10 +87,8 @@ public class SiteLinkImpl implements SiteLink {
 			@JsonProperty("badges") List<String> badges,
 			@JacksonInject("siteIri") String siteIri
 	) {
-		Validate.notNull(title);
-		this.title = title;
-		Validate.notNull(site);
-		this.site = site;
+		this.title = Objects.requireNonNull(title);
+		this.site = Objects.requireNonNull(site);
 		this.badges = (badges == null || badges.isEmpty())
 			? Collections.emptyList()
 			: constructBadges(badges, siteIri);

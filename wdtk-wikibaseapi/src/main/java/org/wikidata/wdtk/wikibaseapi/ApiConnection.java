@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,16 +29,12 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.StreamReadFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +46,15 @@ import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiErrorMessage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.JsonNodeException;
+import tools.jackson.databind.json.JsonMapper;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -367,9 +368,14 @@ public abstract class ApiConnection {
 		params.put("type", tokenType);
 
 		JsonNode root = this.sendJsonRequest("POST", params);
-		return root.path("query").path("tokens").path(tokenType + "token").textValue();
+		try {
+			return root.path("query").path("tokens").path(tokenType + "token").stringValue();
+		} catch (JsonNodeException e) {
+			logger.error("Failed to parse token response: {}", e.getMessage());
+			return null;
+		}
 	}
-	
+
 	/**
 	 * Sends a request to the API with the given parameters and the given
 	 * request method and returns the result JSON tree. It automatically fills the
@@ -446,7 +452,7 @@ public abstract class ApiConnection {
             this.checkErrors(root);
             this.logWarnings(root);
             return root;
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             logger.error(
                     "JSON parse failed. Status: '{}', Headers: '{}', Body: '{}'",
                     response.code(),
@@ -498,7 +504,7 @@ public abstract class ApiConnection {
                         .forEach(entry -> builder.addFormDataPart(entry.getKey(), entry.getValue()));
                 files.entrySet().stream()
                         .forEach(entry -> builder.addFormDataPart(entry.getKey(), entry.getValue().getLeft(),
-                                RequestBody.create(formDataMediaType,entry.getValue().getRight())));
+                                RequestBody.create(entry.getValue().getRight(), formDataMediaType)));
                 body = builder.build();
             } else {
                 body = RequestBody.create(queryString, URLENCODED_MEDIA_TYPE);
@@ -536,18 +542,18 @@ public abstract class ApiConnection {
 	protected void checkErrors(JsonNode root) throws MediaWikiApiErrorException {
 		if (root.has("error")) {
 			JsonNode errorNode = root.path("error");
-			String code = errorNode.path("code").asText("UNKNOWN");
-			String info = errorNode.path("info").asText("No details provided");
-			
+			String code = errorNode.path("code").asString("UNKNOWN");
+			String info = errorNode.path("info").asString("No details provided");
+
 			List<MediaWikiErrorMessage> messages = Collections.emptyList();
 			if (errorNode.has("messages")) {
 			    try {
                     messages = this.mapper.treeToValue(errorNode.get("messages"), new TypeReference<List<MediaWikiErrorMessage>>() {});
-                } catch (JsonProcessingException | IllegalArgumentException e) {
+                } catch (JacksonException | IllegalArgumentException e) {
                     logger.warn("Could not parse 'messages' field of API error response");
                 }
 			}
-			
+
 			// Special case for the maxlag error since we also want to return
 			// the lag value in the exception thrown
 			if (errorNode.has("lag") && MediaWikiApiErrorHandler.ERROR_MAXLAG.equals(code)) {
@@ -582,27 +588,18 @@ public abstract class ApiConnection {
 
 		if (root.has("warnings")) {
 			JsonNode warningNode = root.path("warnings");
-			Iterator<Map.Entry<String, JsonNode>> moduleIterator = warningNode
-					.fields();
-			while (moduleIterator.hasNext()) {
-				Map.Entry<String, JsonNode> moduleNode = moduleIterator.next();
-				Iterator<JsonNode> moduleOutputIterator = moduleNode.getValue()
-						.elements();
-				while (moduleOutputIterator.hasNext()) {
-					JsonNode moduleOutputNode = moduleOutputIterator.next();
-					if (moduleOutputNode.isTextual()) {
+			for (Entry<String, JsonNode> moduleNode : warningNode.properties()) {
+				for (JsonNode moduleOutputNode : moduleNode.getValue().values()) {
+					if (moduleOutputNode.isString()) {
 						warnings.add("[" + moduleNode.getKey() + "]: "
-								+ moduleOutputNode.textValue());
+								+ moduleOutputNode.stringValue());
 					} else if (moduleOutputNode.isArray()) {
-						Iterator<JsonNode> messageIterator = moduleOutputNode
-								.elements();
-						while (messageIterator.hasNext()) {
-							JsonNode messageNode = messageIterator.next();
+						for (JsonNode messageNode : moduleOutputNode.values()) {
 							warnings.add("["
 									+ moduleNode.getKey()
 									+ "]: "
 									+ messageNode.path("html").path("*")
-											.asText(messageNode.toString()));
+											.asString(messageNode.toString()));
 						}
 					} else {
 						warnings.add("["

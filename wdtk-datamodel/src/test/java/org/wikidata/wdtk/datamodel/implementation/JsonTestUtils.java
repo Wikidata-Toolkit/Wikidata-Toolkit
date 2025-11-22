@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,59 +19,42 @@
  */
 package org.wikidata.wdtk.datamodel.implementation;
 
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
 import java.util.TreeMap;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 class JsonTestUtils {
 
-	private static final ObjectMapper mapper = new ObjectMapper();
+	/*
+	 * Sort fields by name to produce mostly canonical JSON.
+	 * https://cowtowncoder.medium.com/
+	 * jackson-tips-sorting-json-using-jsonnode-ce4476e37aee
+	 */
+	private static final JsonMapper mapper = JsonMapper.builder().nodeFactory(new JsonNodeFactory() {
 
-	static {
-		/*
-		 * Support for Optional properties.
-		 */
-		mapper.registerModule(new Jdk8Module());
-		/*
-		 * Sort fields by name to produce mostly canonical JSON.
-		 * https://cowtowncoder.medium.com/
-		 * jackson-tips-sorting-json-using-jsonnode-ce4476e37aee
-		 */
-		mapper.setNodeFactory(new JsonNodeFactory() {
+		private static final long serialVersionUID = 1L;
 
-			private static final long serialVersionUID = 1L;
+		@Override
+		public ObjectNode objectNode() {
+			return new ObjectNode(this, new TreeMap<String, JsonNode>());
+		}
 
-			@Override
-			public ObjectNode objectNode() {
-				return new ObjectNode(this, new TreeMap<String, JsonNode>());
-			}
-
-		});
-	}
+	}).build();
 
 	static String toJson(Object value) {
-		try {
-			String json = mapper.writeValueAsString(value);
-			/*
-			 * Canonical form.
-			 */
-			JsonNode tree = mapper.readTree(json);
-			return mapper.writeValueAsString(tree);
-		} catch (IOException ex) {
-			fail("JSON serialization failed.");
-			return null;
-		}
+		String json = mapper.writeValueAsString(value);
+		/*
+		 * Canonical form.
+		 */
+		JsonNode tree = mapper.readTree(json);
+		return mapper.writeValueAsString(tree);
 	}
 
 	private static class JsonMatcher<T> extends BaseMatcher<T> {

@@ -22,7 +22,7 @@ package org.wikidata.wdtk.wikibaseapi;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import okhttp3.OkHttpClient;
 import org.wikidata.wdtk.wikibaseapi.apierrors.AssertUserFailedException;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
@@ -177,7 +177,7 @@ public class OAuthApiConnection extends ApiConnection {
             if (nameNode.isMissingNode()) {
                 throw new AssertUserFailedException("The path \"query/userinfo/name\" doesn't exist in the json response");
             }
-            username = nameNode.textValue();
+            username = nameNode.stringValue();
         } catch (IOException | MediaWikiApiErrorException e) {
             logger.warn("An error occurred when retrieving the username with OAuth credentials, the username is set to \"\" automatically: " + e.getMessage());
             username = "";

@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,11 +22,13 @@ package org.wikidata.wdtk.datamodel.implementation;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
+
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
+
 import org.wikidata.wdtk.datamodel.interfaces.*;
 
 import java.util.*;
@@ -55,7 +57,7 @@ public abstract class TermedStatementDocumentImpl extends LabeledStatementDocume
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 * 		the identifier of the subject of this document
 	 * @param labels
@@ -113,18 +115,18 @@ public abstract class TermedStatementDocumentImpl extends LabeledStatementDocume
 			this.aliases = Collections.emptyMap();
 		}
 	}
-	
+
 	/**
 	 * Protected constructor provided to ease the creation
 	 * of copies. No check is made and each field is reused without
 	 * copying.
-	 * 
+	 *
 	 * @param labels
 	 * 		a map from language codes to monolingual values with
 	 * 	    the same language codes
 	 * @param descriptions
 	 * 		a map from language codes to monolingual values with
-	 * 	    the same language codes 	    
+	 * 	    the same language codes
 	 * @param aliases
 	 * 		a map from language codes to lists of monolingual values
 	 *      with the same language codes
@@ -166,11 +168,12 @@ public abstract class TermedStatementDocumentImpl extends LabeledStatementDocume
 		return Collections.unmodifiableMap(this.descriptions);
 	}
 
+	@Override
 	@JsonIgnore
 	public String getSiteIri() {
 		return this.siteIri;
 	}
-	
+
 	private static Map<String, List<MonolingualTextValue>> constructTermListMap(List<MonolingualTextValue> terms) {
 		Map<String, List<MonolingualTextValue>> map = new HashMap<>();
 		for(MonolingualTextValue term : terms) {
@@ -219,25 +222,23 @@ public abstract class TermedStatementDocumentImpl extends LabeledStatementDocume
 	 * possible.
 	 *
 	 */
-	static class AliasesDeserializer extends JsonDeserializer<Map<String, List<MonolingualTextValue>>> {
+	static class AliasesDeserializer extends ValueDeserializer<Map<String, List<MonolingualTextValue>>> {
 
 		@Override
 		public Map<String, List<MonolingualTextValue>> deserialize(
-				JsonParser jp, DeserializationContext ctxt) throws JsonMappingException {
+				JsonParser jp, DeserializationContext ctxt) {
 
 			Map<String, List<MonolingualTextValue>> contents = new HashMap<>();
 
 			try {
-				JsonNode node = jp.getCodec().readTree(jp);
+				JsonNode node = jp.objectReadContext().readTree(jp);
 				if (!node.isArray()) {
-					Iterator<Entry<String, JsonNode>> nodeIterator = node.fields();
-					while (nodeIterator.hasNext()) {
+					for (Entry<String, JsonNode> currentNode : node.properties()) {
 						List<MonolingualTextValue> mltvList = new ArrayList<>();
-						Entry<String, JsonNode> currentNode = nodeIterator.next();
 						// get the list of MLTVs
 						for (JsonNode mltvEntry : currentNode.getValue()) {
-							String language = mltvEntry.get("language").asText();
-							String value = mltvEntry.get("value").asText();
+							String language = mltvEntry.get("language").asString();
+							String value = mltvEntry.get("value").asString();
 							mltvList.add(new TermImpl(language,value));
 						}
 
@@ -245,11 +246,10 @@ public abstract class TermedStatementDocumentImpl extends LabeledStatementDocume
 					}
 				}
 			} catch (Exception e) {
-				throw new JsonMappingException(jp, "Unexpected alias list serialization", e);
+				throw DatabindException.from(jp, "Unexpected alias list serialization", e);
 			}
 
 			return contents;
-
 		}
 	}
 }

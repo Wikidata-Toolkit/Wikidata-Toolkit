@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,53 +25,51 @@ import org.wikidata.wdtk.datamodel.interfaces.UnsupportedValue;
 import org.wikidata.wdtk.datamodel.interfaces.Value;
 
 import static org.junit.Assert.*;
-import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class UnsupportedValueImplTest {
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final JsonMapper mapper = new JsonMapper();
 
 	private final String JSON_UNSUPPORTED_VALUE_1 = "{\"type\":\"funky\",\"value\":\"groovy\"}";
 	private final String JSON_UNSUPPORTED_VALUE_2 = "{\"type\":\"shiny\",\"number\":42}";
-	
+
 	private UnsupportedValue firstValue, secondValue;
-	
+
 	@Before
-	public void deserializeFirstValue() throws IOException {
+	public void deserializeFirstValue() {
 		firstValue = mapper.readValue(JSON_UNSUPPORTED_VALUE_1, UnsupportedValueImpl.class);
 		secondValue = mapper.readValue(JSON_UNSUPPORTED_VALUE_2, UnsupportedValueImpl.class);
 	}
-	
+
 	@Test
-	public void testEquals() throws IOException {
+	public void testEquals() {
 		Value otherValue = mapper.readValue(JSON_UNSUPPORTED_VALUE_1, ValueImpl.class);
 		assertEquals(firstValue, otherValue);
 		assertNotEquals(secondValue, otherValue);
 	}
-	
+
 	@Test
-	public void testHash() throws IOException {
+	public void testHash() {
 		Value otherValue = mapper.readValue(JSON_UNSUPPORTED_VALUE_2, ValueImpl.class);
 		assertEquals(secondValue.hashCode(), otherValue.hashCode());
 	}
-	
+
 	@Test
-	public void testSerialize() throws JsonProcessingException {
+	public void testSerialize() {
 		JsonComparator.compareJsonStrings(JSON_UNSUPPORTED_VALUE_1, mapper.writeValueAsString(firstValue));
 		JsonComparator.compareJsonStrings(JSON_UNSUPPORTED_VALUE_2, mapper.writeValueAsString(secondValue));
 	}
-	
+
 	@Test
 	public void testToString() {
 		assertEquals(ToString.toString(firstValue), firstValue.toString());
 		assertEquals(ToString.toString(secondValue), secondValue.toString());
 	}
-	
+
 	@Test
 	public void testGetTypeString() {
 		assertEquals("funky", firstValue.getTypeJsonString());

@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.helpers;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,25 +20,17 @@ package org.wikidata.wdtk.datamodel.helpers;
  * #L%
  */
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.type.TypeFactory;
 import org.wikidata.wdtk.datamodel.implementation.*;
 import org.wikidata.wdtk.datamodel.interfaces.FormDocument;
-import org.wikidata.wdtk.datamodel.interfaces.LexemeDocument;
 import org.wikidata.wdtk.datamodel.interfaces.MonolingualTextValue;
 import org.wikidata.wdtk.datamodel.interfaces.SenseDocument;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,16 +48,17 @@ public class LexemeDeserializer extends StdDeserializer<LexemeDocumentImpl> {
     }
 
     @Override
-    public LexemeDocumentImpl deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
+	public LexemeDocumentImpl deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+		JsonNode node = jsonParser.objectReadContext().readTree(jsonParser);
         if (! (node instanceof ObjectNode)) {
-            throw new IOException("Deserializing a lexeme can only be done from a JSON object");
+        	deserializationContext.reportInputMismatch(LexemeDocumentImpl.class,
+        			"Deserializing a lexeme can only be done from a JSON object");
         }
         ObjectNode object = (ObjectNode) node;
 
-        String jsonId = object.get("id").asText();
-        String lexicalCategory = object.get("lexicalCategory").asText();
-        String language = object.get("language").asText();
+        String jsonId = object.get("id").asString();
+        String lexicalCategory = object.get("lexicalCategory").asString();
+        String language = object.get("language").asString();
         TypeFactory typeFactory = deserializationContext.getTypeFactory();
 
         JsonNode lemmas1 = object.get("lemmas");
@@ -107,7 +100,7 @@ public class LexemeDeserializer extends StdDeserializer<LexemeDocumentImpl> {
         if (object.has("lastrevid")) {
             lastrevid = object.get("lastrevid").asLong();
         }
-        String siteIri = (String) deserializationContext.findInjectableValue("siteIri", null , null);
+        String siteIri = (String) deserializationContext.findInjectableValue("siteIri", null , null, null, null);
         return new LexemeDocumentImpl(
                 jsonId,
                 lexicalCategory,

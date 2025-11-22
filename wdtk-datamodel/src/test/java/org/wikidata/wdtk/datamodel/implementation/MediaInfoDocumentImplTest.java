@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,21 +20,17 @@ package org.wikidata.wdtk.datamodel.implementation;
  * #L%
  */
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
-import org.wikidata.wdtk.datamodel.interfaces.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.wikidata.wdtk.datamodel.helpers.Datamodel;
-import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
 import org.wikidata.wdtk.datamodel.interfaces.Claim;
 import org.wikidata.wdtk.datamodel.interfaces.DatatypeIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.MediaInfoDocument;
@@ -45,9 +41,6 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 import org.wikidata.wdtk.datamodel.interfaces.StatementGroup;
 import org.wikidata.wdtk.datamodel.interfaces.StatementRank;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.*;
 
 public class MediaInfoDocumentImplTest {
@@ -90,10 +83,10 @@ public class MediaInfoDocumentImplTest {
 	public void equalityBasedOnContent() {
 		MediaInfoDocument irDiffLabel = new MediaInfoDocumentImpl(mid, Collections.emptyList(), statementGroups, 1234);
 		MediaInfoDocument irDiffStatementGroups = new MediaInfoDocumentImpl(mid,
-				labelList, 
+				labelList,
 				Collections.emptyList(), 1234);
 		MediaInfoDocument irDiffRevisions = new MediaInfoDocumentImpl(mid,
-				labelList, 
+				labelList,
 				statementGroups, 1235);
 
 		PropertyDocument pr = new PropertyDocumentImpl(
@@ -106,7 +99,7 @@ public class MediaInfoDocumentImplTest {
 		// based on different item ids with all other data being equal
 		MediaInfoDocument irDiffMediaInfoIdValue = new MediaInfoDocumentImpl(
 				new MediaInfoIdValueImpl("M23", "http://example.org/"),
-				labelList, 
+				labelList,
 				Collections.emptyList(), 1234);
 
 		assertEquals(mi1, mi1);
@@ -178,7 +171,7 @@ public class MediaInfoDocumentImplTest {
 		assertEquals(1235L, mi1.withRevisionId(1235L).getRevisionId());
 		assertEquals(mi1, mi1.withRevisionId(1325L).withRevisionId(mi1.getRevisionId()));
 	}
-	
+
 	@Test
 	public void testWithLabelInNewLanguage() {
 		MonolingualTextValue newLabel = new MonolingualTextValueImpl(
@@ -186,7 +179,7 @@ public class MediaInfoDocumentImplTest {
 		MediaInfoDocument withLabel = mi1.withLabel(newLabel);
 		assertEquals("MediaInfo M42", withLabel.findLabel("fr"));
 	}
-	
+
 	@Test
 	public void testAddStatement() {
 		Statement fresh = new StatementImpl("MyFreshId", StatementRank.NORMAL,
@@ -201,7 +194,7 @@ public class MediaInfoDocumentImplTest {
 				claim.getMainSnak().getPropertyId(),
 				claim.getValue()));
 	}
-	
+
 	@Test
 	public void testDeleteStatements() {
 		Statement toRemove = statementGroups.get(0).getStatements().get(0);
@@ -210,39 +203,39 @@ public class MediaInfoDocumentImplTest {
 	}
 
 	@Test
-	public void testLabelsToJson() throws JsonProcessingException {
+	public void testLabelsToJson() {
 		MediaInfoDocumentImpl document = new MediaInfoDocumentImpl(mid, labelList, Collections.emptyList(), 0);
 		JsonComparator.compareJsonStrings(JSON_MEDIA_INFO_LABEL, mapper.writeValueAsString(document));
 	}
 
 	@Test
-	public void testLabelToJava() throws IOException {
+	public void testLabelToJava() {
 		MediaInfoDocumentImpl document = new MediaInfoDocumentImpl(mid,
 				labelList, Collections.emptyList(), 0);
 		assertEquals(document, mapper.readValue(JSON_MEDIA_INFO_LABEL, EntityDocumentImpl.class));
 	}
 
 	@Test
-	public void testDescriptionsToJava() throws IOException {
+	public void testDescriptionsToJava() {
 		MediaInfoDocumentImpl document = new MediaInfoDocumentImpl(mid,
 				Collections.emptyList(), Collections.emptyList(), 0);
 		assertEquals(document, mapper.readValue(JSON_MEDIA_INFO_DESCRIPTION, EntityDocumentImpl.class));
 	}
 
 	@Test
-	public void testStatementsToJson() throws JsonProcessingException {
+	public void testStatementsToJson() {
 		MediaInfoDocumentImpl document = new MediaInfoDocumentImpl(mid, Collections.emptyList(), statementGroups,  0);
 		JsonComparator.compareJsonStrings(JSON_MEDIA_INFO_CLAIMS, mapper.writeValueAsString(document));
 	}
 
 	@Test
-	public void testStatementsToJava() throws IOException {
+	public void testStatementsToJava() {
 		MediaInfoDocumentImpl document = new MediaInfoDocumentImpl(mid, Collections.emptyList(), statementGroups, 0);
 		assertEquals(document, mapper.readValue(JSON_MEDIA_INFO_STATEMENTS, MediaInfoDocumentImpl.class));
 	}
 
 	@Test
-	public void testStatementsNamedClaimsToJava() throws IOException {
+	public void testStatementsNamedClaimsToJava() {
 		MediaInfoDocumentImpl document = new MediaInfoDocumentImpl(mid, Collections.emptyList(), statementGroups, 0);
 		assertEquals(document, mapper.readValue(JSON_MEDIA_INFO_CLAIMS, MediaInfoDocumentImpl.class));
 	}
@@ -251,7 +244,7 @@ public class MediaInfoDocumentImplTest {
 	 * Checks support of wrong serialization of empty object as empty array
 	 */
 	@Test
-	public void testEmptyArraysForTerms() throws IOException {
+	public void testEmptyArraysForTerms() {
 		MediaInfoDocumentImpl document = new MediaInfoDocumentImpl(mid, Collections.emptyList(), Collections.emptyList(), 0);
 
 		assertEquals(document, mapper.readerFor(MediaInfoDocumentImpl.class)

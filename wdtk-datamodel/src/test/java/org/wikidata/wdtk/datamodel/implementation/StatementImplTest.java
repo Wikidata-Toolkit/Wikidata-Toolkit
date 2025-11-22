@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,12 +22,10 @@ package org.wikidata.wdtk.datamodel.implementation;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
 import org.wikidata.wdtk.datamodel.interfaces.*;
@@ -90,7 +88,7 @@ public class StatementImplTest {
 				Collections.emptyList(), Collections.emptyList(), value);
 		assertEquals(statement.getStatementId(), "");
 	}
-	
+
 	@Test
 	public void withId() {
 		Statement statement = new StatementImpl(null, StatementRank.NORMAL, claim.getMainSnak(), claim.getQualifiers(), Collections.emptyList(), claim.getSubject());
@@ -128,22 +126,22 @@ public class StatementImplTest {
 	}
 
 	@Test
-	public void testStatementToJson() throws JsonProcessingException {
+	public void testStatementToJson() {
 		JsonComparator.compareJsonStrings(JSON_STATEMENT, mapper.writeValueAsString(s1));
 	}
 
 	@Test
-	public void testStatementToJava() throws IOException {
+	public void testStatementToJava() {
 		assertEquals(s1, mapper.readValue(JSON_STATEMENT, StatementImpl.PreStatement.class).withSubject(subjet));
 	}
 
 	@Test
-	public void testSmallStatementToJson() throws JsonProcessingException {
+	public void testSmallStatementToJson() {
 		JsonComparator.compareJsonStrings(JSON_SMALL_STATEMENT, mapper.writeValueAsString(smallStatement));
 	}
 
 	@Test
-	public void testSmallStatementToJava() throws IOException {
+	public void testSmallStatementToJava() {
 		assertEquals(smallStatement, mapper.readValue(JSON_SMALL_STATEMENT, StatementImpl.PreStatement.class).withSubject(subjet));
 	}
 }

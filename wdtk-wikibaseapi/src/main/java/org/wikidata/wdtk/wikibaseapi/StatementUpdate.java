@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,9 +51,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @deprecated Use {@link WikibaseDataEditor#editEntityDocument(EntityUpdate, boolean, String, List)} instead.
@@ -84,17 +85,17 @@ public class StatementUpdate {
 			this.write = write;
 		}
 	}
-	
+
 	/**
 	 * Helper class to ease serialization of deleted statements. Jackson will
 	 * serialize this class according to the format required by the API.
-	 * 
+	 *
 	 * @author antonin
 	 */
 	static class DeletedStatement implements Statement {
-		
+
 		private String id;
-		
+
 		public DeletedStatement(String id) {
 			this.id = id;
 		}
@@ -152,7 +153,7 @@ public class StatementUpdate {
 		public Value getValue() {
 			return null;
 		}
-		
+
 		@JsonProperty("remove")
 		public String getRemoveCommand() {
 			return "";
@@ -162,12 +163,12 @@ public class StatementUpdate {
 		public Statement withStatementId(String id) {
 			return null;
 		}
-		
+
 	}
 
 	private GuidGenerator guidGenerator = new RandomGuidGenerator();
-	private final ObjectMapper mapper;
-	
+	private final JsonMapper mapper;
+
 	@JsonIgnore
 	final HashMap<PropertyIdValue, List<StatementWithUpdate>> toKeep;
 	@JsonIgnore
@@ -209,15 +210,15 @@ public class StatementUpdate {
 	public String getJsonUpdateString() {
 		try {
 			return mapper.writeValueAsString(this);
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			return ("Failed to serialize statement update to JSON: " + e.toString());
 		}
 	}
-	
+
 	/**
 	 * Performs the update, selecting the appropriate API action depending on
 	 * the nature of the change.
-	 * 
+	 *
 	 * @param action
 	 *       the endpoint to which the change should be pushed
 	 * @param editAsBot
@@ -233,8 +234,8 @@ public class StatementUpdate {
 	 *        string identifiers of the tags to apply to the edit.
 	 *        Ignored if null or empty.
 	 * @return the new document after update with the API
-	 * @throws MediaWikiApiErrorException 
-	 * @throws IOException 
+	 * @throws MediaWikiApiErrorException
+	 * @throws IOException
 	 */
 	public StatementDocument performEdit(WbEditingAction action, boolean editAsBot, String summary, List<String> tags)
 			throws IOException, MediaWikiApiErrorException {
@@ -244,28 +245,28 @@ public class StatementUpdate {
 			// we can use "wbsetclaim" because we only have one statement to change
 			List<Statement> statements = getUpdatedStatements();
 			Statement statement = statements.get(0);
-			
+
 			if (statement.getStatementId() == null || statement.getStatementId().isEmpty()) {
 				statement = statement.withStatementId(guidGenerator.freshStatementId(currentDocument.getEntityId().getId()));
 
 			}
-			
+
 			JsonNode response = action.wbSetClaim(
 						JsonSerializer.getJsonString(statement), editAsBot,
 						currentDocument.getRevisionId(), summary, tags);
-			
+
 			StatementImpl.PreStatement preStatement = getDatamodelObjectFromResponse(response, Collections.singletonList("claim"), StatementImpl.PreStatement.class);
 			Statement returnedStatement = preStatement.withSubject(statement.getClaim().getSubject());
 			long revisionId = getRevisionIdFromResponse(response);
-			
+
 			return currentDocument.withStatement(returnedStatement).withRevisionId(revisionId);
 		} else if (!toDelete.isEmpty() && getUpdatedStatements().size() == toDelete.size() && toDelete.size() <= 50) {
 			// we can use "wbremoveclaims" because we are only removing statements
-			
+
 			JsonNode response = action.wbRemoveClaims(toDelete, editAsBot, currentDocument.getRevisionId(), summary, tags);
-			
+
 			long revisionId = getRevisionIdFromResponse(response);
-			
+
 			return currentDocument.withoutStatementIds(new HashSet<>(toDelete)).withRevisionId(revisionId);
 		} else {
 			return (StatementDocument) action.wbEditEntity(currentDocument
@@ -274,7 +275,7 @@ public class StatementUpdate {
 				.getRevisionId(), summary, tags);
 		}
 	}
-	
+
 	@JsonProperty("claims")
 	@JsonInclude(Include.NON_EMPTY)
 	public List<Statement> getUpdatedStatements() {
@@ -287,13 +288,13 @@ public class StatementUpdate {
 				updatedStatements.add(swu.statement);
 			}
 		}
-		
+
 		for (String id : toDelete) {
 			updatedStatements.add(new DeletedStatement(id));
 		}
 		return updatedStatements;
 	}
-	
+
 	/**
 	 * Returns true when the edit is not going to change anything on the item.
 	 * In this case, the change can be safely skipped, except if the side effects
@@ -603,7 +604,7 @@ public class StatementUpdate {
 
 		return snakCount2 == snakList1.size();
 	}
-	
+
 	/**
 	 * Sets the GUID generator for this statement update.
 	 */
@@ -611,18 +612,18 @@ public class StatementUpdate {
 		guidGenerator = generator;
 	}
 
-	
+
 	/**
 	 * Extracts the last revision id from the JSON response returned
 	 * by the API after an edit
-	 * 
+	 *
 	 * @param response
 	 * 		the response as returned by Mediawiki
 	 * @return
 	 * 		the new revision id of the edited entity
-	 * @throws JsonProcessingException 
+	 * @throws JacksonException
 	 */
-	protected long getRevisionIdFromResponse(JsonNode response) throws JsonProcessingException {
+	protected long getRevisionIdFromResponse(JsonNode response) {
 		if(response == null) {
 			throw new MalformedResponseException("API response is null");
 		}
@@ -631,27 +632,27 @@ public class StatementUpdate {
 			entity = response.path("entity");
 		} else if(response.has("pageinfo")) {
 			entity = response.path("pageinfo");
-		} 
+		}
 		if(entity != null && entity.has("lastrevid")) {
 			return entity.path("lastrevid").asLong();
 		}
 		throw new MalformedResponseException("The last revision id could not be found in API response");
 	}
-	
+
     /**
      * Extracts a particular data model instance from a JSON response
      * returned by MediaWiki. The location is described by a list of successive
      * fields to use, from the root to the target object.
-     * 
+     *
      * @param response
      * 		the API response as returned by MediaWiki
      * @param path
      * 		a list of fields from the root to the target object
      * @return
      * 		the parsed POJO object
-     * @throws JsonProcessingException 
+     * @throws JacksonException
      */
-	protected <T> T getDatamodelObjectFromResponse(JsonNode response, List<String> path, Class<T> targetClass) throws JsonProcessingException {
+	protected <T> T getDatamodelObjectFromResponse(JsonNode response, List<String> path, Class<T> targetClass) {
 		if(response == null) {
 			throw new MalformedResponseException("The API response is null");
 		}

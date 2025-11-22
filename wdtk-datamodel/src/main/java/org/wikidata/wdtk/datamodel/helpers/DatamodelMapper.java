@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,38 +19,34 @@
  */
 package org.wikidata.wdtk.datamodel.helpers;
 
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.InjectableValues;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Same as Jackson's celebrated ObjectMapper, except
+ * Same as Jackson's celebrated JsonMapper, except
  * that we add injections necessary to fill fields not
  * represented in JSON.
- * 
+ *
  * @author antonin
  *
  */
-public class DatamodelMapper extends ObjectMapper {
+public class DatamodelMapper extends JsonMapper {
 
 	private static final long serialVersionUID = -236841297410109272L;
-	
+
 	/**
 	 * Constructs a mapper with the given siteIri. This IRI
 	 * will be used to fill all the siteIris of the entity ids
 	 * contained in the payloads.
-	 * 
+	 *
 	 * @param siteIri
 	 * 		the ambient IRI of the Wikibase site
 	 */
 	public DatamodelMapper(String siteIri) {
-		super();
-		InjectableValues injection = new InjectableValues.Std()
-				.addValue("siteIri", siteIri);
-		this.setInjectableValues(injection);
-		/*
-		 * Support for Optional properties.
-		 */
-		registerModule(new Jdk8Module());
+		super(JsonMapper.builder()
+				.enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)
+				.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+				.injectableValues(new InjectableValues.Std().addValue("siteIri", siteIri)));
 	}
 }

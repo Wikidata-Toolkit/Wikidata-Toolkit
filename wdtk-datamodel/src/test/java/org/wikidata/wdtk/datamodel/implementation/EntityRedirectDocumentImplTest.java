@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,14 +20,11 @@ package org.wikidata.wdtk.datamodel.implementation;
  * #L%
  */
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
 import org.wikidata.wdtk.datamodel.interfaces.EntityRedirectDocument;
 import org.wikidata.wdtk.datamodel.interfaces.ItemIdValue;
-
-import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -90,12 +87,12 @@ public class EntityRedirectDocumentImplTest {
 	}
 
 	@Test
-	public void testRedirectToJson() throws JsonProcessingException {
+	public void testRedirectToJson() {
 		JsonComparator.compareJsonStrings(JSON_ITEM_REDIRECT, mapper.writeValueAsString(itemRedirect));
 	}
 
 	@Test
-	public void testLexemeToJava() throws IOException {
+	public void testLexemeToJava() {
 		assertEquals(itemRedirect, mapper.readValue(JSON_ITEM_REDIRECT, EntityRedirectDocumentImpl.class));
 	}
 }

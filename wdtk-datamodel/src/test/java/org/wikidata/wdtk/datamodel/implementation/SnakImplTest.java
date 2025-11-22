@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,16 +22,13 @@ package org.wikidata.wdtk.datamodel.implementation;
 
 import static org.junit.Assert.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
 import org.wikidata.wdtk.datamodel.interfaces.NoValueSnak;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.SomeValueSnak;
 import org.wikidata.wdtk.datamodel.interfaces.ValueSnak;
-
-import java.io.IOException;
 
 public class SnakImplTest {
 
@@ -57,7 +54,7 @@ public class SnakImplTest {
 	private final String JSON_MONOLINGUAL_TEXT_VALUE_SNAK = "{\"snaktype\":\"value\",\"property\":\"P42\",\"datatype\":\"monolingualtext\",\"datavalue\":{\"value\":{\"language\":\"en\",\"text\":\"foo\"},\"type\":\"monolingualtext\"}}";
 	private final String JSON_SNAK_UNKNOWN_ID = "{\"snaktype\":\"value\",\"property\":\"P42\",\"datatype\":\"wikibase-funkyid\",\"datavalue\":{\"value\":{\"id\":\"FUNKY42\",\"entity-type\":\"funky\"},\"type\":\"wikibase-entityid\"}}";
 	private final String JSON_SNAK_UNKNOWN_DATAVALUE = "{\"snaktype\":\"value\",\"property\":\"P42\",\"datatype\":\"groovy\",\"datavalue\":{\"foo\":\"bar\",\"type\":\"groovyvalue\"}}";
-	
+
 	@Test
 	public void fieldsAreCorrect() {
 		assertEquals(vs1.getPropertyId(), p1);
@@ -117,56 +114,56 @@ public class SnakImplTest {
 	}
 
 	@Test
-	public void testNoValueSnakToJava() throws IOException {
+	public void testNoValueSnakToJava() {
 		assertEquals(nvs1, mapper.readValue(JSON_NOVALUE_SNAK, SnakImpl.class));
 	}
 
 	@Test
-	public void testNoValueSnakToJson() throws JsonProcessingException {
+	public void testNoValueSnakToJson() {
 		JsonComparator.compareJsonStrings(JSON_NOVALUE_SNAK, mapper.writeValueAsString(nvs1));
 	}
 
 	@Test
-	public void testSomeValueSnakToJava() throws IOException {
+	public void testSomeValueSnakToJava() {
 		assertEquals(svs1, mapper.readValue(JSON_SOMEVALUE_SNAK, SnakImpl.class));
 	}
 
 	@Test
-	public void testSomeValueSnakToJson() throws JsonProcessingException {
+	public void testSomeValueSnakToJson() {
 		JsonComparator.compareJsonStrings(JSON_SOMEVALUE_SNAK, mapper.writeValueAsString(svs1));
 
 	}
 
 	@Test
-	public void testValueSnakToJava() throws IOException {
+	public void testValueSnakToJava() {
 		assertEquals(vs1, mapper.readValue(JSON_VALUE_SNAK, SnakImpl.class));
 	}
 
 	@Test
-	public void testValueSnakToJson() throws JsonProcessingException {
+	public void testValueSnakToJson() {
 		JsonComparator.compareJsonStrings(JSON_VALUE_SNAK, mapper.writeValueAsString(vs1));
 	}
 
 	@Test
-	public void testMonolingualTextValueSnakToJava() throws IOException {
+	public void testMonolingualTextValueSnakToJava() {
 		assertEquals(vsmt1, mapper.readValue(JSON_MONOLINGUAL_TEXT_VALUE_SNAK, SnakImpl.class));
 		assertEquals(vsmt2, mapper.readValue(JSON_MONOLINGUAL_TEXT_VALUE_SNAK, SnakImpl.class));
 	}
 
 	@Test
-	public void testMonolingualTextValueSnakToJson() throws JsonProcessingException {
+	public void testMonolingualTextValueSnakToJson() {
 		JsonComparator.compareJsonStrings(JSON_MONOLINGUAL_TEXT_VALUE_SNAK, mapper.writeValueAsString(vsmt1));
 		JsonComparator.compareJsonStrings(JSON_MONOLINGUAL_TEXT_VALUE_SNAK, mapper.writeValueAsString(vsmt2));
 	}
-	
+
 	@Test
-	public void testDeserializeUnknownIdSnak() throws IOException {
+	public void testDeserializeUnknownIdSnak() {
 		// We only require deserialization not to fail here
 		mapper.readValue(JSON_SNAK_UNKNOWN_ID, SnakImpl.class);
 	}
-	
+
 	@Test
-	public void testDeserializeUnknownDatavalueSnak() throws IOException {
+	public void testDeserializeUnknownDatavalueSnak() {
 		// We only require deserialization not to fail here
 		mapper.readValue(JSON_SNAK_UNKNOWN_DATAVALUE, SnakImpl.class);
 	}

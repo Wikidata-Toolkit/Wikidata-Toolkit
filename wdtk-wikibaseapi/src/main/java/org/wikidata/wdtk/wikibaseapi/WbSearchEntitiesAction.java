@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,9 +28,9 @@ import java.util.Map;
 
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Java implementation of the wbsearchentities action.
@@ -48,7 +48,7 @@ public class WbSearchEntitiesAction {
 	/**
 	 * Mapper object used for deserializing JSON data.
 	 */
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final JsonMapper mapper = new JsonMapper();
 
 	/**
 	 * Creates an object to fetch data from the given ApiConnection. The site
@@ -73,7 +73,7 @@ public class WbSearchEntitiesAction {
 	}
 
 	/**
-	 * Keeping this for backwards compatibility, the real action happens in 
+	 * Keeping this for backwards compatibility, the real action happens in
 	 * {@link WbSearchEntitiesAction#wbSearchEntities(String, String, Boolean, String, Long, Long, String)}
 	 */
 	public List<WbSearchEntitiesResult> wbSearchEntities(String search, String language,
@@ -113,7 +113,7 @@ public class WbSearchEntitiesAction {
 	 *            (optional) offset where to continue a search
 	 *            Default: 0
 	 *            this parameter is called "continue" in the API (which is a Java keyword)
-	 * @param uselang        
+	 * @param uselang
 	 *            (optional) the response should have this language, default en
 	 * @return list of matching entities retrieved via the API URL
 	 * @throws MediaWikiApiErrorException
@@ -123,7 +123,7 @@ public class WbSearchEntitiesAction {
 	 * @throws MalformedResponseException
 	 *             if response JSON cannot be parsed
 	 */
-	public List<WbSearchEntitiesResult> wbSearchEntities(String search, String language, 
+	public List<WbSearchEntitiesResult> wbSearchEntities(String search, String language,
 			Boolean strictLanguage, String type, Long limit, Long offset, String uselang)
 					throws MediaWikiApiErrorException, IOException {
 
@@ -172,9 +172,9 @@ public class WbSearchEntitiesAction {
 				JacksonWbSearchEntitiesResult ed = mapper.treeToValue(entityNode,
 						JacksonWbSearchEntitiesResult.class);
 				results.add(ed);
-			} catch (JsonProcessingException e) {
+			} catch (JacksonException e) {
 				throw new MalformedResponseException(
-						"Error when reading JSON for entity " + entityNode.path("id").asText("UNKNOWN"), e);
+						"Error when reading JSON for entity " + entityNode.path("id").asString("UNKNOWN"), e);
 			}
 		}
 

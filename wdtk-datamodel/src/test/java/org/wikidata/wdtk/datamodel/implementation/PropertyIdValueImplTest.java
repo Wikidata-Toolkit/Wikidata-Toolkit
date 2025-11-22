@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,14 +22,11 @@ package org.wikidata.wdtk.datamodel.implementation;
 
 import static org.junit.Assert.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.helpers.Datamodel;
 import org.wikidata.wdtk.datamodel.helpers.DatamodelMapper;
 import org.wikidata.wdtk.datamodel.interfaces.EntityIdValue;
-
-import java.io.IOException;
 
 public class PropertyIdValueImplTest {
 
@@ -89,18 +86,17 @@ public class PropertyIdValueImplTest {
 	}
 
 	@Test
-	public void testToJson() throws JsonProcessingException {
+	public void testToJson() {
 		JsonComparator.compareJsonStrings(JSON_PROPERTY_ID_VALUE, mapper.writeValueAsString(prop1));
 	}
 
 	@Test
-	public void testToJava() throws
-			IOException {
+	public void testToJava() {
 		assertEquals(prop1, mapper.readValue(JSON_PROPERTY_ID_VALUE, ValueImpl.class));
 	}
 
 	@Test
-	public void testToJavaWithoutNumericalID() throws IOException {
+	public void testToJavaWithoutNumericalID() {
 		assertEquals(prop1, mapper.readValue(JSON_PROPERTY_ID_VALUE_WITHOUT_NUMERICAL_ID, ValueImpl.class));
 	}
 

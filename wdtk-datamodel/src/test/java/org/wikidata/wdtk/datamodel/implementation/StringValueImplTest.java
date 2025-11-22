@@ -9,9 +9,9 @@ package org.wikidata.wdtk.datamodel.implementation;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,8 +22,8 @@ package org.wikidata.wdtk.datamodel.implementation;
 
 import static org.junit.Assert.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.interfaces.StringValue;
 
@@ -31,7 +31,7 @@ import java.io.IOException;
 
 public class StringValueImplTest {
 
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final JsonMapper mapper = new JsonMapper();
 
 	private final StringValue s1 = new StringValueImpl("some string");
 	private final StringValue s2 = new StringValueImpl("some string");
@@ -64,7 +64,7 @@ public class StringValueImplTest {
 	}
 
 	@Test
-	public void testToJson() throws JsonProcessingException {
+	public void testToJson() {
 		JsonComparator.compareJsonStrings(JSON_STRING_VALUE, mapper.writeValueAsString(s1));
 	}
 

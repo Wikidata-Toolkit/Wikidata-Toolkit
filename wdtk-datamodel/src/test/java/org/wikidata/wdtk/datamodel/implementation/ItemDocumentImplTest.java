@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,6 @@ package org.wikidata.wdtk.datamodel.implementation;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -42,9 +41,8 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 import org.wikidata.wdtk.datamodel.interfaces.StatementGroup;
 import org.wikidata.wdtk.datamodel.interfaces.StatementRank;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
 
 public class ItemDocumentImplTest {
 
@@ -251,7 +249,7 @@ public class ItemDocumentImplTest {
 		assertEquals(1235L, ir1.withRevisionId(1235L).getRevisionId());
 		assertEquals(ir1, ir1.withRevisionId(1325L).withRevisionId(ir1.getRevisionId()));
 	}
-	
+
 	@Test
 	public void testWithLabelInNewLanguage() {
 		MonolingualTextValue newLabel = new MonolingualTextValueImpl(
@@ -259,7 +257,7 @@ public class ItemDocumentImplTest {
 		ItemDocument withLabel = ir1.withLabel(newLabel);
 		assertEquals("Item Q42", withLabel.findLabel("fr"));
 	}
-	
+
 	@Test
 	public void testWithDescriptionInNewLanguage() {
 		MonolingualTextValue newDescription = new MonolingualTextValueImpl(
@@ -275,7 +273,7 @@ public class ItemDocumentImplTest {
 		ItemDocument withDescription = ir1.withDescription(newDescription);
 		assertEquals("eine viel bessere Beschreibung", withDescription.findDescription("de"));
 	}
-	
+
 	@Test
 	public void testWithAliasInNewLanguage() {
 		MonolingualTextValue newAlias = new MonolingualTextValueImpl(
@@ -292,7 +290,7 @@ public class ItemDocumentImplTest {
 		ItemDocument withAlias = ir1.withAliases("en", Collections.singletonList(newAlias));
 		assertEquals(Collections.singletonList(newAlias), withAlias.getAliases().get("en"));
 	}
-	
+
 	@Test
 	public void testAddStatement() {
 		Statement fresh = new StatementImpl("MyFreshId", StatementRank.NORMAL,
@@ -307,7 +305,7 @@ public class ItemDocumentImplTest {
 				claim.getMainSnak().getPropertyId(),
 				claim.getValue()));
 	}
-	
+
 	@Test
 	public void testDeleteStatements() {
 		Statement toRemove = statementGroups.get(0).getStatements().get(0);
@@ -316,7 +314,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testLabelsToJson() throws JsonProcessingException {
+	public void testLabelsToJson() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				labelList, Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), 0);
@@ -324,7 +322,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testLabelToJava() throws IOException {
+	public void testLabelToJava() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				labelList, Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), 0);
@@ -332,7 +330,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testDescriptionsToJson() throws JsonProcessingException {
+	public void testDescriptionsToJson() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), descList, Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), 0);
@@ -340,7 +338,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testDescriptionsToJava() throws IOException {
+	public void testDescriptionsToJava() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), descList, Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), 0);
@@ -348,7 +346,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testAliasesToJson() throws JsonProcessingException {
+	public void testAliasesToJson() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), Collections.emptyList(), aliasList,
 				Collections.emptyList(), Collections.emptyList(), 0);
@@ -356,7 +354,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testAliasesToJava() throws IOException {
+	public void testAliasesToJava() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), Collections.emptyList(), aliasList,
 				Collections.emptyList(), Collections.emptyList(), 0);
@@ -364,7 +362,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testStatementsToJson() throws JsonProcessingException {
+	public void testStatementsToJson() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
 				statementGroups, Collections.emptyList(), 0);
@@ -372,7 +370,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testStatementsToJava() throws IOException {
+	public void testStatementsToJava() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
 				statementGroups, Collections.emptyList(), 0);
@@ -380,7 +378,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testSiteLinksToJson() throws JsonProcessingException {
+	public void testSiteLinksToJson() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), sitelinks, 0);
@@ -388,7 +386,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testSiteLinksToJava() throws IOException {
+	public void testSiteLinksToJava() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), sitelinks, 0);
@@ -399,7 +397,7 @@ public class ItemDocumentImplTest {
 	 * Checks support of wrong serialization of empty object as empty array
 	 */
 	@Test
-	public void testEmptyArraysForTerms() throws IOException {
+	public void testEmptyArraysForTerms() {
 		ItemDocumentImpl document = new ItemDocumentImpl(iid,
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), 0);
@@ -411,7 +409,7 @@ public class ItemDocumentImplTest {
 	}
 
 	@Test
-	public void testGetJsonId() throws Exception {
+	public void testGetJsonId() {
 		ItemDocument item = Datamodel.makeItemDocument(
 				Datamodel.makeWikidataItemIdValue("Q42"),
 				Collections.singletonList(Datamodel.makeMonolingualTextValue("en", "label")),

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,8 +56,7 @@ import org.wikidata.wdtk.datamodel.interfaces.TermedStatementDocument;
 import org.wikidata.wdtk.datamodel.interfaces.TermedStatementDocumentUpdate;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Class that provides high-level editing functionality for Wikibase data.
@@ -77,7 +76,7 @@ public class WikibaseDataEditor {
 	 * before editing.
 	 */
 	final WikibaseDataFetcher wikibaseDataFetcher;
-	
+
 	/**
 	 * GUID generator, for editing actions that require generating fresh GUIDs
 	 * client-side.
@@ -114,7 +113,7 @@ public class WikibaseDataEditor {
 		this.siteIri = siteUri;
 		this.guidGenerator = new RandomGuidGenerator();
 	}
-	
+
 	/**
 	 * Creates an object to edit data via the Web API of the given
 	 * {@link ApiConnection} object. The site URI is necessary to create data
@@ -190,7 +189,7 @@ public class WikibaseDataEditor {
 	public void setMaxLag(int maxLag) {
 		this.wbEditingAction.setMaxLag(maxLag);
 	}
-	
+
 	/**
 	 * Number of times we should retry if an editing action fails because
 	 * the lag is too high.
@@ -210,7 +209,7 @@ public class WikibaseDataEditor {
 	/**
 	 * Initial wait time in milliseconds, when an edit fails for the first
 	 * time because of a high lag. This wait time is going to be multiplied
-	 * by maxLagBackOffFactor for the subsequent waits. 
+	 * by maxLagBackOffFactor for the subsequent waits.
 	 */
 	public int getMaxLagFirstWaitTime() {
 		return this.wbEditingAction.getMaxLagFirstWaitTime();
@@ -219,7 +218,7 @@ public class WikibaseDataEditor {
 	/**
 	 * Initial wait time in milliseconds, when an edit fails for the first
 	 * time because of a high lag. This wait time is going to be multiplied
-	 * by maxLagBackOffFactor for the subsequent waits. 
+	 * by maxLagBackOffFactor for the subsequent waits.
 	 */
 	public void setMaxLagFirstWaitTime(int time) {
 		this.wbEditingAction.setMaxLagFirstWaitTime(time);
@@ -303,7 +302,7 @@ public class WikibaseDataEditor {
 		return this.wbEditingAction.wbEditEntity(
 				null, null, null, type, data, false, editAsBot, 0, summary, tags);
 	}
-	
+
 	/**
 	 * Creates new entity document. Provided entity document must use a local item ID,
 	 * such as {@link ItemIdValue#NULL}, and its revision ID must be 0.
@@ -831,8 +830,8 @@ public class WikibaseDataEditor {
 		return updateStatements(currentDocument, addStatements,
 				deleteStatements, summary, tags);
 	}
-	
-	
+
+
 	/**
 	 * @deprecated Use {@link #editEntityDocument(EntityUpdate, boolean, String, List)} instead.
 	 * Updates the terms and statements of the item document identified by the
@@ -840,7 +839,7 @@ public class WikibaseDataEditor {
 	 * found online, making sure that no redundant deletions or duplicate insertions
 	 * happen. The references of duplicate statements will be merged. The labels
 	 * and aliases in a given language are kept distinct.
-	 * 
+	 *
 	 * @param itemIdValue
 	 * 			id of the document to be updated
 	 * @param addLabels
@@ -886,7 +885,7 @@ public class WikibaseDataEditor {
 			List<String> tags) throws MediaWikiApiErrorException, IOException {
 		ItemDocument currentDocument = (ItemDocument) this.wikibaseDataFetcher
 				.getEntityDocument(itemIdValue.getId());
-		
+
 		return updateTermsStatements(currentDocument, addLabels,
 				addDescriptions, addAliases, deleteAliases,
 				addStatements, deleteStatements, summary, tags);
@@ -982,7 +981,7 @@ public class WikibaseDataEditor {
 		StatementUpdate statementUpdate = new StatementUpdate(currentDocument,
 				addStatements, deleteStatements);
 		statementUpdate.setGuidGenerator(guidGenerator);
-		
+
 		if (statementUpdate.isEmptyEdit()) {
 			return currentDocument;
 		} else {
@@ -992,7 +991,7 @@ public class WikibaseDataEditor {
 				.getRevisionId(), summary, tags);
 		}
 	}
-	
+
 	/**
 	 * @deprecated Use {@link #editEntityDocument(EntityUpdate, boolean, String, List)} instead.
 	 * Updates the terms and statements of the current document.
@@ -1000,7 +999,7 @@ public class WikibaseDataEditor {
 	 * making sure that no redundant deletions or duplicate insertions
 	 * happen. The references of duplicate statements will be merged. The labels
 	 * and aliases in a given language are kept distinct.
-	 * 
+	 *
      * @param currentDocument
 	 * 			the document to be updated; needs to have a correct revision id and
 	 * 			entity id
@@ -1046,20 +1045,20 @@ public class WikibaseDataEditor {
 			List<Statement> addStatements, List<Statement> deleteStatements,
 			String summary, List<String> tags)
 					throws MediaWikiApiErrorException, IOException {
-		
+
 		TermStatementUpdate termStatementUpdate = new TermStatementUpdate(
 				currentDocument,
 				addStatements, deleteStatements,
 				addLabels, addDescriptions, addAliases, deleteAliases);
 		termStatementUpdate.setGuidGenerator(guidGenerator);
-		
+
 		return  (T) termStatementUpdate.performEdit(wbEditingAction, editAsBot, summary, tags);
 	}
-	
+
 	/**
 	 * Performs a null edit on an entity. This has some effects on Wikibase, such as
 	 * refreshing the labels of the referred items in the UI.
-	 * 
+	 *
 	 * @param entityId
 	 *            the document to perform a null edit on
 	 * @throws MediaWikiApiErrorException
@@ -1075,12 +1074,12 @@ public class WikibaseDataEditor {
 	 * @deprecated Use {@link #nullEdit(EntityIdValue)} instead.
 	 * Performs a null edit on an item. This has some effects on Wikibase,
 	 * such as refreshing the labels of the referred items in the UI.
-	 * 
+	 *
 	 * @param itemId
 	 * 			the document to perform a null edit on
 	 * @throws MediaWikiApiErrorException
 	 * 	        if the API returns errors
-	 * @throws IOException 
+	 * @throws IOException
 	 * 		    if there are any IO errors, such as missing network connection
 	 */
 	@Deprecated
@@ -1088,20 +1087,20 @@ public class WikibaseDataEditor {
 			throws IOException, MediaWikiApiErrorException {
 		ItemDocument currentDocument = (ItemDocument) this.wikibaseDataFetcher
 				.getEntityDocument(itemId.getId());
-		
+
 		nullEdit(currentDocument);
 	}
-	
+
 	/**
 	 * @deprecated Use {@link #nullEdit(EntityIdValue)} instead.
 	 * Performs a null edit on a property. This has some effects on Wikibase,
 	 * such as refreshing the labels of the referred items in the UI.
-	 * 
+	 *
 	 * @param propertyId
 	 * 			the document to perform a null edit on
 	 * @throws MediaWikiApiErrorException
 	 * 	        if the API returns errors
-	 * @throws IOException 
+	 * @throws IOException
 	 * 		    if there are any IO errors, such as missing network connection
 	 */
 	@Deprecated
@@ -1109,14 +1108,14 @@ public class WikibaseDataEditor {
 			throws IOException, MediaWikiApiErrorException {
 		PropertyDocument currentDocument = (PropertyDocument) this.wikibaseDataFetcher
 				.getEntityDocument(propertyId.getId());
-		
+
 		nullEdit(currentDocument);
 	}
-	
+
 	/**
 	 * Performs a null edit on an entity. This has some effects on Wikibase, such as
 	 * refreshing the labels of the referred items in the UI.
-	 * 
+	 *
 	 * @param currentDocument
 	 *            the document to perform a null edit on
 	 * @return new version of the document returned by Wikibase API
@@ -1136,14 +1135,14 @@ public class WikibaseDataEditor {
     /**
      * Extracts the last revision id from the JSON response returned
      * by the API after an edit
-     * 
+     *
      * @param response
      *      the response as returned by Mediawiki
      * @return
      *      the new revision id of the edited entity
-     * @throws JsonProcessingException 
+     * @throws MalformedResponseException
      */
-    protected long getRevisionIdFromResponse(JsonNode response) throws JsonProcessingException {
+    protected long getRevisionIdFromResponse(JsonNode response) {
         if(response == null) {
             throw new MalformedResponseException("API response is null");
         }
@@ -1152,7 +1151,7 @@ public class WikibaseDataEditor {
             entity = response.path("entity");
         } else if(response.has("pageinfo")) {
             entity = response.path("pageinfo");
-        } 
+        }
         if(entity != null && entity.has("lastrevid")) {
             return entity.path("lastrevid").asLong();
         }

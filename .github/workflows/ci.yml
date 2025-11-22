@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 11, 17, 21 ]
+        java: [ 17, 21, 25 ]
 
     steps:
       - uses: actions/checkout@v5
@@ -26,7 +26,7 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-${{ matrix.java }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-${{ matrix.java }}-m2
-      - run: mvn --batch-mode --update-snapshots -Dgpg.skip=true jacoco:prepare-agent verify jacoco:report
+      - run: mvn --batch-mode --no-transfer-progress --update-snapshots -Dgpg.skip=true -Dstyle.color=always jacoco:prepare-agent verify jacoco:report
       - uses: codecov/codecov-action@v5
         with:
           file: ./**/target/site/jacoco/jacoco.xml

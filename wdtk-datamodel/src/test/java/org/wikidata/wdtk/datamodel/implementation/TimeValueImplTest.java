@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,17 +23,14 @@ package org.wikidata.wdtk.datamodel.implementation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.io.IOException;
-
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.interfaces.TimeValue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class TimeValueImplTest {
 
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final JsonMapper mapper = new JsonMapper();
 
 	private final TimeValue t1 = new TimeValueImpl(2007, (byte) 5, (byte) 12, (byte) 10, (byte) 45,
 			(byte) 0, TimeValue.PREC_SECOND, 0, 1, 60,
@@ -144,12 +141,12 @@ public class TimeValueImplTest {
 	}
 
 	@Test
-	public void testToJson() throws JsonProcessingException {
+	public void testToJson() {
 		JsonComparator.compareJsonStrings(JSON_TIME_VALUE, mapper.writeValueAsString(t1));
 	}
 
 	@Test
-	public void testToJava() throws IOException {
+	public void testToJava() {
 		assertEquals(t1, mapper.readValue(JSON_TIME_VALUE, ValueImpl.class));
 	}
 

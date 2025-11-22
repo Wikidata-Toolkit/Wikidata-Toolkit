@@ -9,9 +9,9 @@ package org.wikidata.wdtk.wikibaseapi;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,14 +20,15 @@ package org.wikidata.wdtk.wikibaseapi;
  * #L%
  */
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
 import org.wikidata.wdtk.datamodel.helpers.Datamodel;
 import org.wikidata.wdtk.datamodel.interfaces.MediaInfoIdValue;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Action for MediaInfoId retrieval.
@@ -83,11 +84,9 @@ public class MediaInfoIdQueryAction {
 		Map<String, String> normalizedMap = new HashMap<>();
 		if (query.has("normalized")) {
 			ArrayNode normalized = (ArrayNode) query.get("normalized");
-			Iterator<JsonNode> iterator = normalized.elements();
-			while (iterator.hasNext()) {
-				JsonNode next = iterator.next();
-				String from = next.get("from").asText();
-				String to = next.get("to").asText();
+			for (JsonNode elem : normalized.elements()) {
+				String from = elem.get("from").asString();
+				String to = elem.get("to").asString();
 				normalizedMap.put(from, to);
 			}
 		}
@@ -95,11 +94,9 @@ public class MediaInfoIdQueryAction {
 		// normalized file name => Mid
 		Map<String, MediaInfoIdValue> midMap = new HashMap<>();
 		JsonNode pages = query.get("pages");
-		Iterator<Map.Entry<String, JsonNode>> iterator = pages.fields();
-		while (iterator.hasNext()) {
-			Map.Entry<String, JsonNode> page = iterator.next();
+		for (Entry<String, JsonNode> page : pages.properties()) {
 			String pageId = page.getKey();
-			String title = page.getValue().get("title").textValue();
+			String title = page.getValue().get("title").stringValue();
 			if (!pageId.startsWith("-")) { // negative keys such as "-1", "-2", ... mean not found
 				midMap.put(title, Datamodel.makeMediaInfoIdValue("M" + pageId, siteIri));
 			}

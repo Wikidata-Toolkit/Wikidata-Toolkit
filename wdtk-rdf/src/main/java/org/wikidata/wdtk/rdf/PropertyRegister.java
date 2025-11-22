@@ -11,9 +11,9 @@ import java.io.IOException;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,8 +29,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
@@ -415,7 +416,7 @@ public class PropertyRegister {
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("User-Agent", "Wikidata-Toolkit PropertyRegister");
 
-			final ObjectMapper mapper = new ObjectMapper();
+			final JsonMapper mapper = new JsonMapper();
 			JsonNode root = mapper.readTree(connection.getInputStream());
 			JsonNode bindings = root.path("results").path("bindings");
 

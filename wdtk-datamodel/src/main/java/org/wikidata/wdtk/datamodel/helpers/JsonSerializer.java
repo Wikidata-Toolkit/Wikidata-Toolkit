@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,10 +35,9 @@ import org.wikidata.wdtk.datamodel.interfaces.MediaInfoDocument;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
 import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * This class implements {@link EntityDocumentDumpProcessor} to provide a
@@ -70,14 +69,7 @@ public class JsonSerializer implements EntityDocumentDumpProcessor {
 	/**
 	 * Object mapper that is used to serialize JSON.
 	 */
-	protected static final ObjectMapper mapper = new ObjectMapper();
-	static {
-		mapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-		/*
-		 * Support for Optional properties.
-		 */
-		mapper.registerModule(new Jdk8Module());
-	}
+	protected static final JsonMapper mapper = JsonMapper.builder().disable(StreamWriteFeature.AUTO_CLOSE_TARGET).build();
 
 	/**
 	 * Counter for the number of documents serialized so far.
@@ -185,9 +177,9 @@ public class JsonSerializer implements EntityDocumentDumpProcessor {
 	 * @param entityDocument
 	 *            object to serialize
 	 * @return JSON serialization
-	 * @throws JsonProcessingException if the object cannot be serialized
+	 * @throws JacksonException if the object cannot be serialized
 	 */
-	public static String getJsonString(EntityDocument entityDocument) throws JsonProcessingException {
+	public static String getJsonString(EntityDocument entityDocument) {
 		return mapper.writeValueAsString(entityDocument);
 	}
 
@@ -198,9 +190,9 @@ public class JsonSerializer implements EntityDocumentDumpProcessor {
 	 * @param itemDocument
 	 *            object to serialize
 	 * @return JSON serialization
-	 * @throws JsonProcessingException if the object cannot be serialized
+	 * @throws JacksonException if the object cannot be serialized
 	 */
-	public static String getJsonString(ItemDocument itemDocument) throws JsonProcessingException {
+	public static String getJsonString(ItemDocument itemDocument) {
 		return mapper.writeValueAsString(itemDocument);
 	}
 
@@ -211,9 +203,9 @@ public class JsonSerializer implements EntityDocumentDumpProcessor {
 	 * @param propertyDocument
 	 *            object to serialize
 	 * @return JSON serialization
-	 * @throws JsonProcessingException if the object cannot be serialized
+	 * @throws JacksonException if the object cannot be serialized
 	 */
-	public static String getJsonString(PropertyDocument propertyDocument) throws JsonProcessingException {
+	public static String getJsonString(PropertyDocument propertyDocument) {
 		return mapper.writeValueAsString(propertyDocument);
 	}
 
@@ -224,9 +216,9 @@ public class JsonSerializer implements EntityDocumentDumpProcessor {
 	 * @param mediaInfoDocument
 	 *            object to serialize
 	 * @return JSON serialization
-	 * @throws JsonProcessingException if the object cannot be serialized
+	 * @throws JacksonException if the object cannot be serialized
 	 */
-	public static String getJsonString(MediaInfoDocument mediaInfoDocument) throws JsonProcessingException {
+	public static String getJsonString(MediaInfoDocument mediaInfoDocument) {
 		return mapper.writeValueAsString(mediaInfoDocument);
 	}
 
@@ -237,9 +229,9 @@ public class JsonSerializer implements EntityDocumentDumpProcessor {
 	 * @param statement
 	 *            object to serialize
 	 * @return JSON serialization
-	 * @throws JsonProcessingException if the object cannot be serialized
+	 * @throws JacksonException if the object cannot be serialized
 	 */
-	public static String getJsonString(Statement statement) throws JsonProcessingException {
+	public static String getJsonString(Statement statement) {
 		return mapper.writeValueAsString(statement);
 	}
 
@@ -250,9 +242,9 @@ public class JsonSerializer implements EntityDocumentDumpProcessor {
 	 * @param update
 	 *            object to serialize
 	 * @return JSON serialization
-	 * @throws JsonProcessingException if the object cannot be serialized
+	 * @throws JacksonException if the object cannot be serialized
 	 */
-	public static String getJsonString(EntityUpdate update) throws JsonProcessingException {
+	public static String getJsonString(EntityUpdate update) {
 		return mapper.writeValueAsString(update);
 	}
 

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,20 +25,18 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
 import org.junit.Test;
 import org.wikidata.wdtk.datamodel.interfaces.ItemIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.QuantityValue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+import tools.jackson.databind.exc.ValueInstantiationException;
+import tools.jackson.databind.json.JsonMapper;
 
 public class QuantityValueImplTest {
 
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final JsonMapper mapper = new JsonMapper();
 
 	private final BigDecimal nv = new BigDecimal(
 			"0.123456789012345678901234567890123456789");
@@ -101,7 +99,7 @@ public class QuantityValueImplTest {
 		assertNotEquals(q1, null);
 		assertNotEquals(q1, this);
 	}
-	
+
 	@Test
 	public void equalityBasedOnRepresentation() {
 		BigDecimal amount1 = new BigDecimal("4.00");
@@ -111,7 +109,7 @@ public class QuantityValueImplTest {
 		QuantityValue quantity2 = new QuantityValueImpl(amount2, null, null, (ItemIdValue)null);
 		assertNotEquals(quantity1, quantity2);
 	}
-	
+
 	@Test
 	public void faithfulJsonSerialization() {
 		BigDecimal amount = new BigDecimal("4.00");
@@ -148,7 +146,7 @@ public class QuantityValueImplTest {
 	@Test
 	@SuppressWarnings("deprecation")
 	public void unitNotEmpty() {
-		assertThrows(IllegalArgumentException.class, () -> new QuantityValueImpl(nv, lb, ub, (String) ""));
+		assertThrows(IllegalArgumentException.class, () -> new QuantityValueImpl(nv, lb, ub, ""));
 	}
 
 	@Test
@@ -162,27 +160,27 @@ public class QuantityValueImplTest {
 	}
 
 	@Test
-	public void testToJson() throws JsonProcessingException {
+	public void testToJson() {
 		JsonComparator.compareJsonStrings(JSON_QUANTITY_VALUE, mapper.writeValueAsString(q1));
 	}
 
 	@Test
-	public void testToJava() throws IOException {
+	public void testToJava() {
 		assertEquals(q1, mapper.readValue(JSON_QUANTITY_VALUE, ValueImpl.class));
 	}
-	
+
 	@Test
-	public void testParseInvalidUnit() throws IOException {
+	public void testParseInvalidUnit() {
 	    assertThrows(ValueInstantiationException.class, () -> mapper.readValue(JSON_INVALID_UNIT, ValueImpl.class));
 	}
 
 	@Test
-	public void testUnboundedToJson() throws JsonProcessingException {
+	public void testUnboundedToJson() {
 		JsonComparator.compareJsonStrings(JSON_UNBOUNDED_QUANTITY_VALUE, mapper.writeValueAsString(q3));
 	}
 
 	@Test
-	public void testUnboundedToJava() throws IOException {
+	public void testUnboundedToJava() {
 		assertEquals(q3, mapper.readValue(JSON_UNBOUNDED_QUANTITY_VALUE, ValueImpl.class));
 	}
 }
