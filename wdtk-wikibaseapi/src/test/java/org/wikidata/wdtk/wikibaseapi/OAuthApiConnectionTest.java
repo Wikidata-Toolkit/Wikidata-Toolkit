@@ -37,7 +37,11 @@ import org.wikidata.wdtk.datamodel.interfaces.PropertyIdValue;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -80,19 +84,23 @@ public class OAuthApiConnectionTest {
         Dispatcher dispatcher = new Dispatcher() {
 
             @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                switch (request.getBody().readUtf8()) {
-                    case "languages=fr&assert=user&format=json&action=wbgetentities&ids=Q8&sitefilter=enwiki&props=info%7Cdatatype%7Clabels%7Caliases%7Cdescriptions%7Csitelinks":
-                        return new MockResponse()
-                                .addHeader("Content-Type", "application/json; charset=utf-8")
-                                .setBody("{\"entities\":{\"Q8\":{\"pageid\":134,\"ns\":0,\"title\":\"Q8\",\"lastrevid\":1174289176,\"modified\":\"2020-05-05T12:39:07Z\",\"type\":\"item\",\"id\":\"Q8\",\"labels\":{\"fr\":{\"language\":\"fr\",\"value\":\"bonheur\"}},\"descriptions\":{\"fr\":{\"language\":\"fr\",\"value\":\"état émotionnel\"}},\"aliases\":{\"fr\":[{\"language\":\"fr\",\"value\":\":)\"},{\"language\":\"fr\",\"value\":\"\uD83D\uDE04\"},{\"language\":\"fr\",\"value\":\"\uD83D\uDE03\"}]},\"sitelinks\":{\"enwiki\":{\"site\":\"enwiki\",\"title\":\"Happiness\",\"badges\":[]}}}},\"success\":1}");
-                    case "meta=userinfo&assert=user&format=json&action=query":
-                        return new MockResponse()
-                                .addHeader("Content-Type", "application/json; charset=utf-8")
-                                .setBody("{\"batchcomplete\":\"\",\"query\":{\"userinfo\":{\"id\":2333,\"name\":\"foo\"}}}");
-                    default:
-                        return new MockResponse().setResponseCode(404);
+            public MockResponse dispatch(RecordedRequest request) {
+                String requestBody = request.getBody().readUtf8();
+                Map<String, String> params = parseFormBody(requestBody);
+
+                if (isGetEntitiesRequest(params)) {
+                    return new MockResponse()
+                            .addHeader("Content-Type", "application/json; charset=utf-8")
+                            .setBody("{\"entities\":{\"Q8\":{\"pageid\":134,\"ns\":0,\"title\":\"Q8\",\"lastrevid\":1174289176,\"modified\":\"2020-05-05T12:39:07Z\",\"type\":\"item\",\"id\":\"Q8\",\"labels\":{\"fr\":{\"language\":\"fr\",\"value\":\"bonheur\"}},\"descriptions\":{\"fr\":{\"language\":\"fr\",\"value\":\"état émotionnel\"}},\"aliases\":{\"fr\":[{\"language\":\"fr\",\"value\":\":)\"},{\"language\":\"fr\",\"value\":\"\uD83D\uDE04\"},{\"language\":\"fr\",\"value\":\"\uD83D\uDE03\"}]},\"sitelinks\":{\"enwiki\":{\"site\":\"enwiki\",\"title\":\"Happiness\",\"badges\":[]}}}},\"success\":1}");
                 }
+
+                if (isUserInfoRequest(params)) {
+                    return new MockResponse()
+                            .addHeader("Content-Type", "application/json; charset=utf-8")
+                            .setBody("{\"batchcomplete\":\"\",\"query\":{\"userinfo\":{\"id\":2333,\"name\":\"foo\"}}}");
+                }
+
+                return new MockResponse().setResponseCode(404);
             }
         };
 
@@ -180,5 +188,39 @@ public class OAuthApiConnectionTest {
         assertEquals(-1, connection.getConnectTimeout());
         assertEquals(-1, connection.getReadTimeout());
         assertTrue(connection.getTokens().isEmpty());
+    }
+
+    private static Map<String, String> parseFormBody(String body) {
+        Map<String, String> params = new HashMap<>();
+        if (body == null || body.isEmpty()) {
+            return params;
+        }
+        for (String pair : body.split("&")) {
+            int idx = pair.indexOf('=');
+            String key = idx >= 0 ? pair.substring(0, idx) : pair;
+            String value = idx >= 0 ? pair.substring(idx + 1) : "";
+            params.put(
+                    URLDecoder.decode(key, StandardCharsets.UTF_8),
+                    URLDecoder.decode(value, StandardCharsets.UTF_8)
+            );
+        }
+        return params;
+    }
+
+    private static boolean isGetEntitiesRequest(Map<String, String> params) {
+        return "wbgetentities".equals(params.get("action"))
+                && "Q8".equals(params.get("ids"))
+                && "enwiki".equals(params.get("sitefilter"))
+                && "fr".equals(params.get("languages"))
+                && "info|datatype|labels|aliases|descriptions|sitelinks".equals(params.get("props"))
+                && "user".equals(params.get("assert"))
+                && "json".equals(params.get("format"));
+    }
+
+    private static boolean isUserInfoRequest(Map<String, String> params) {
+        return "query".equals(params.get("action"))
+                && "userinfo".equals(params.get("meta"))
+                && "user".equals(params.get("assert"))
+                && "json".equals(params.get("format"));
     }
 }
