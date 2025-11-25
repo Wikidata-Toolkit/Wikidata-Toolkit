@@ -69,13 +69,27 @@ public class BasicApiConnectionTest {
 
 	private String LOGGED_IN_SERIALIZED_CONNECTION = "{\"baseUrl\":\"" + server.url("/w/api.php") + "\",\"cookies\":[{\"name\":\"GeoIP\",\"value\":\"DE:13:Dresden:51.0500:13.7500:v4\",\"comment\":null,\"commentURL\":null,\"domain\":\"domain comparison should be skipped\",\"maxAge\":-1,\"path\":\"/\",\"portlist\":null,\"secure\":false,\"httpOnly\":false,\"version\":0,\"discard\":false},{\"name\":\"testwikidatawikiSession\",\"value\":\"c18ef92637227283bcda73bcf95cfaf5\",\"comment\":null,\"commentURL\":null,\"domain\":\"domain comparison should be skipped\",\"maxAge\":-1,\"path\":\"/\",\"portlist\":null,\"secure\":true,\"httpOnly\":true,\"version\":0,\"discard\":false}],\"username\":\"username\",\"loggedIn\":true,\"tokens\":{\"login\":\"b5780b6e2f27e20b450921d9461010b4\"},\"connectTimeout\":5000,\"readTimeout\":6000,\"customUserAgent\":\"customAgent\"}";
 
-	Set<String> split(String str, char ch) {
+	private static Set<String> split(String str, char ch) {
 		Set<String> set = new TreeSet<>();
 		StringTokenizer stok = new StringTokenizer(str, "" + ch);
 		while (stok.hasMoreTokens()) {
 			set.add(stok.nextToken().trim());
 		}
 		return set;
+	}
+
+	private static boolean hasSameFormParams(String requestBody, String expectedBody) {
+		return split(requestBody, '&').equals(split(expectedBody, '&'));
+	}
+
+	private static boolean hasSameQuery(String path, String expectedPath, String expectedQuery) {
+		int queryIndex = path.indexOf('?');
+		String actualPath = queryIndex >= 0 ? path.substring(0, queryIndex) : path;
+		if (!expectedPath.equals(actualPath)) {
+			return false;
+		}
+		String actualQuery = queryIndex >= 0 ? path.substring(queryIndex + 1) : "";
+		return split(actualQuery, '&').equals(split(expectedQuery, '&'));
 	}
 
 	private static MockResponse makeJsonResponseFrom(String path) throws IOException {
@@ -94,7 +108,7 @@ public class BasicApiConnectionTest {
 
 			@Override
 			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-				if ("/w/api.php?languages=fr&format=json&action=wbgetentities&ids=Q8&sitefilter=enwiki&props=info".equals(request.getPath())) {
+					if (hasSameQuery(request.getPath(), "/w/api.php", "languages=fr&format=json&action=wbgetentities&ids=Q8&sitefilter=enwiki&props=info")) {
 					return new MockResponse()
 							.setHeader("Content-Type", "application/json; charset=utf-8")
 							.setBody("{\"entities\":{\"Q8\":{\"pageid\":134,\"ns\":0,\"title\":\"Q8\",\"lastrevid\":1174289176,\"modified\":\"2020-05-05T12:39:07Z\",\"type\":\"item\",\"id\":\"Q8\"}},\"success\":1}\n");
@@ -110,30 +124,35 @@ public class BasicApiConnectionTest {
 								.setBody("{\"success\":\"true\"}");
 					}
 					// otherwise, check for equality on the request body
-					switch (requestBody) {
-						case "meta=tokens&format=json&action=query&type=login":
-							return makeJsonResponseFrom("/query-login-token.json");
-						case "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password&format=json&action=login&lgname=username":
-							return makeJsonResponseFrom("/loginSuccess.json");
-						case "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password1&format=json&action=login&lgname=username1":
-							return makeJsonResponseFrom("/loginError.json");
-						case "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password2&format=json&action=login&lgname=username":
-							return makeJsonResponseFrom("/loginFailed.json");
-						case "meta=tokens&assert=user&format=json&action=query&type=csrf":
-							return makeJsonResponseFrom("/query-csrf-token-loggedin-response.json");
-						case "assert=user&format=json&action=logout&token=42307b93c79b0cb558d2dfb4c3c92e0955e06041%2B%5C":
-							return new MockResponse().setHeader("Content-Type", "application/json; charset=utf-8").setBody("{}");
-						case "assert=user&format=json&action=query":
-							return makeJsonResponseFrom("/assert-user-failed.json");
+					if (hasSameFormParams(requestBody, "meta=tokens&format=json&action=query&type=login")) {
+						return makeJsonResponseFrom("/query-login-token.json");
+					}
+					if (hasSameFormParams(requestBody, "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password&format=json&action=login&lgname=username")) {
+						return makeJsonResponseFrom("/loginSuccess.json");
+					}
+					if (hasSameFormParams(requestBody, "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password1&format=json&action=login&lgname=username1")) {
+						return makeJsonResponseFrom("/loginError.json");
+					}
+					if (hasSameFormParams(requestBody, "lgtoken=b5780b6e2f27e20b450921d9461010b4&lgpassword=password2&format=json&action=login&lgname=username")) {
+						return makeJsonResponseFrom("/loginFailed.json");
+					}
+					if (hasSameFormParams(requestBody, "meta=tokens&assert=user&format=json&action=query&type=csrf")) {
+						return makeJsonResponseFrom("/query-csrf-token-loggedin-response.json");
+					}
+					if (hasSameFormParams(requestBody, "assert=user&format=json&action=logout&token=42307b93c79b0cb558d2dfb4c3c92e0955e06041%2B%5C")) {
+						return new MockResponse().setHeader("Content-Type", "application/json; charset=utf-8").setBody("{}");
+					}
+					if (hasSameFormParams(requestBody, "assert=user&format=json&action=query")) {
+						return makeJsonResponseFrom("/assert-user-failed.json");
 					}
 					// finally check clientLogin. This uses server.url, so cannot be used in switch statement because it is not constant.
 					String url = server.url("/w/api.php").toString();
 					String encodedUrl = URLEncoder.encode(url, "UTF-8");
 					final String clientLoginRequest = String.format("password=password&format=json&action=clientlogin&logintoken=b5780b6e2f27e20b450921d9461010b4&loginreturnurl=%s&username=Admin" , encodedUrl);
 					final String clientLoginErrorRequest = String.format("password=password1&format=json&action=clientlogin&logintoken=b5780b6e2f27e20b450921d9461010b4&loginreturnurl=%s&username=Admin" , encodedUrl);
-					if (requestBody.equals(clientLoginRequest)) {
+					if (hasSameFormParams(requestBody, clientLoginRequest)) {
 						return makeJsonResponseFrom("/clientLoginSuccess.json");
-					} else if (requestBody.equals(clientLoginErrorRequest)) {
+					} else if (hasSameFormParams(requestBody, clientLoginErrorRequest)) {
 						return makeJsonResponseFrom("/clientLoginError.json");
 					}
 
@@ -211,7 +230,9 @@ public class BasicApiConnectionTest {
 		// We skip comparing the cookie domains here, since they depend on
 		// the mocked web server's host, which is system dependent.
 		jsonSerialization = jsonSerialization.replaceAll("\"domain\":\"[^\"]*\"", "\"domain\":\"domain comparison should be skipped\"");
-		assertEquals(LOGGED_IN_SERIALIZED_CONNECTION, jsonSerialization);
+		JsonNode actual = mapper.readTree(jsonSerialization);
+		JsonNode expected = mapper.readTree(LOGGED_IN_SERIALIZED_CONNECTION);
+		assertEquals(expected, actual);
 	}
 
 	@Test
