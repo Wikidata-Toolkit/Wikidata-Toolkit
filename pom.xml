@@ -72,7 +72,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jacksonVersion>3.0.2</jacksonVersion>
+		<jacksonVersion>3.0.3</jacksonVersion>
 		<okhttpVersion>5.3.2</okhttpVersion>
 	</properties>
 
@@ -298,7 +298,7 @@
 				<!-- Pluging to generate release source -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.3.1</version>
+				<version>3.4.0</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
