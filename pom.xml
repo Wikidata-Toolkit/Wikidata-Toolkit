@@ -72,7 +72,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jacksonVersion>3.1.0</jacksonVersion>
+		<jacksonVersion>3.1.2</jacksonVersion>
 		<okhttpVersion>5.3.2</okhttpVersion>
 	</properties>
 
@@ -93,7 +93,7 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>5.22.0</version>
+				<version>5.23.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -131,7 +131,7 @@
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.21.0</version>
+				<version>2.22.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -158,12 +158,12 @@
 			<dependency>
 				<groupId>org.eclipse.rdf4j</groupId>
 				<artifactId>rdf4j-rio-turtle</artifactId>
-				<version>5.2.2</version>
+				<version>5.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.rdf4j</groupId>
 				<artifactId>rdf4j-rio-ntriples</artifactId>
-				<version>5.2.2</version>
+				<version>5.3.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
