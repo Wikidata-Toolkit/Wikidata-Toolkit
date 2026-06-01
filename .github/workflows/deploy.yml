@@ -1,9 +1,12 @@
 name: Maven Release
 
-
 on:
   release:
     types: [published]
+
+# For the publication of javadocs as gh-pages, this is necessary
+permissions:
+  contents: write
 
 jobs:
   build:
