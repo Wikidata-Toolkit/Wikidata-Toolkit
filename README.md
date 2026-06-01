@@ -42,3 +42,23 @@ During development, the version number in the `pom.xml` files should be the next
 11. Update the examples in https://github.com/Wikidata-Toolkit/Wikidata-Toolkit-Examples (generally just bumping WDTK's version in the `pom.xml` file works. Make sure it still compiles afterwards.)
 
 The library is automatically packaged and uploaded to Maven Central by the continuous deployment (with GitHub Actions). So is the HTML version of the javadoc (to GitHub Pages).
+
+## Projects Using Wikidata Toolkit
+
+This is list to showcase real-world usage of Wikidata Toolkit and to help reach out to users when considering significant changes. If you're using Wikidata Toolkit, please consider adding your project here.
+
+### Tools & Applications
+
+* **[Wikibrowser](https://github.com/JavaFXpert/wikibrowser-service)** – Facility that browses Wikipedia augmented with semantic capabilities.
+
+### Bots
+
+* **[Makrobot](https://www.wikidata.org/wiki/User:Makrobot)** – A collection of maintenance bots built with Wikidata Toolkit, including:
+    * *SetNumLabels* – Adds default labels to items about integer numbers based on their P31 (instance of) values. Has processed over 10,000 items.
+    * *FixIntegerPrecision* – Corrects quantity values on integer-required properties (e.g., population) from the default ±1 precision to exact values.
+
+### Example Implementations
+
+The [wikidata-toolkit-examples](https://github.com/Wikidata/Wikidata-Toolkit-Examples) repository contains a number of example programs and bots that demonstrate basic functions. See the repository [README](https://github.com/Wikidata-Toolkit/Wikidata-Toolkit-Examples/blob/master/src/examples/README.md) for a full guide.
+* **[WorldMapProcessor.java](https://github.com/Wikidata-Toolkit/Wikidata-Toolkit-Examples/blob/master/src/examples/WorldMapProcessor.java)** - This program generates images of world maps based on the locations of Wikidata items, and stores the result in PNG files. See [Wikidata world maps for June 2015](https://iccl.inf.tu-dresden.de/web/Wikidata/Maps-06-2015/en)
+* **[ClassPropertyUsageExample.java](https://github.com/Wikidata-Toolkit/Wikidata-Toolkit-Examples/blob/master/src/examples/ClassPropertyUsageAnalyzer.java)** - This advanced program analyses the use of properties and classes on Wikidata, and creates output that can be used in the Miga data browser.
