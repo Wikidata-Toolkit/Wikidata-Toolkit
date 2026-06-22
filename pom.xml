@@ -72,8 +72,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jacksonVersion>3.1.4</jacksonVersion>
-		<okhttpVersion>5.3.2</okhttpVersion>
+		<jacksonVersion>3.2.0</jacksonVersion>
+		<okhttpVersion>5.4.0</okhttpVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -126,7 +126,7 @@
 			<dependency>
 				<groupId>org.threeten</groupId>
 				<artifactId>threeten-extra</artifactId>
-				<version>1.9.0</version>
+				<version>1.10.0</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
@@ -284,7 +284,7 @@
 				<!-- Call mvn test jacoco:report to generate test coverage -->
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.14</version>
+				<version>0.8.15</version>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
@@ -330,7 +330,7 @@
                         <plugin>
                             <groupId>org.sonatype.central</groupId>
                             <artifactId>central-publishing-maven-plugin</artifactId>
-                            <version>0.10.0</version>
+                            <version>0.11.0</version>
                             <extensions>true</extensions>
                             <configuration>
                                 <publishingServerId>central</publishingServerId>
