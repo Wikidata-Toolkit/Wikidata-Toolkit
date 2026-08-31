@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Antonin Delpeuch
  *
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "snaktype")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "snaktype")
 @JsonSubTypes({
 		@Type(value = NoValueSnakImpl.class, name = SnakImpl.JSON_SNAK_TYPE_NOVALUE),
 		@Type(value = SomeValueSnakImpl.class, name = SnakImpl.JSON_SNAK_TYPE_SOMEVALUE),
