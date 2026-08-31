@@ -74,6 +74,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jacksonVersion>3.2.0</jacksonVersion>
 		<okhttpVersion>5.4.0</okhttpVersion>
+		<rdf4jVersion>5.3.1</rdf4jVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -158,12 +159,12 @@
 			<dependency>
 				<groupId>org.eclipse.rdf4j</groupId>
 				<artifactId>rdf4j-rio-turtle</artifactId>
-				<version>6.0.0</version>
+				<version>${rdf4jVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.rdf4j</groupId>
 				<artifactId>rdf4j-rio-ntriples</artifactId>
-				<version>6.0.0</version>
+				<version>${rdf4jVersion}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
