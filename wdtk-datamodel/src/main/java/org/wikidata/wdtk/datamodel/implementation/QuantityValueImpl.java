@@ -308,13 +308,13 @@ public class QuantityValueImpl extends ValueImpl implements QuantityValue {
 		}
 
 		/**
-		 * Formats the string output with a leading signum as JSON expects it.
+		 * Formats a decimal string without exponent notation and with a leading signum as JSON expects it.
 		 */
 		private String bigDecimalToSignedString(BigDecimal value) {
 			if (value.signum() < 0) {
-				return value.toString();
+				return value.toPlainString();
 			} else {
-				return "+" + value.toString();
+				return "+" + value.toPlainString();
 			}
 		}
 
