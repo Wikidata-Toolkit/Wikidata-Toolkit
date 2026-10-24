@@ -74,7 +74,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jacksonVersion>3.2.3</jacksonVersion>
 		<okhttpVersion>5.5.0</okhttpVersion>
-		<rdf4jVersion>6.1.0</rdf4jVersion>
+		<rdf4jVersion>5.3.1</rdf4jVersion>
 	</properties>
 
 	<dependencyManagement>
