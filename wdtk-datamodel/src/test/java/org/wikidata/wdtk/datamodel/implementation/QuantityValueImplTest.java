@@ -118,6 +118,87 @@ public class QuantityValueImplTest {
 	}
 
 	@Test
+	public void testExponentAmountsToJson() {
+		String[][] cases = {
+				{"12.34E+5", "+1234000"},
+				{"-12.34E+5", "-1234000"},
+				{"1.234E-7", "+0.0000001234"},
+				{"-1.234E-7", "-0.0000001234"}
+		};
+		for (String[] testCase : cases) {
+			QuantityValue quantity = new QuantityValueImpl(new BigDecimal(testCase[0]), null, null,
+					(ItemIdValue) null);
+			assertQuantityJsonRoundTrip(quantity, "{\"value\":{\"amount\":\"" + testCase[1]
+					+ "\",\"unit\":\"1\"},\"type\":\"quantity\"}");
+		}
+	}
+
+	@Test
+	public void testExponentZeroToJson() {
+		String[][] cases = {
+				{"0E+7", "+0"},
+				{"-0E+7", "+0"},
+				{"0E-7", "+0.0000000"},
+				{"-0E-7", "+0.0000000"}
+		};
+		for (String[] testCase : cases) {
+			QuantityValue quantity = new QuantityValueImpl(new BigDecimal(testCase[0]), null, null,
+					(ItemIdValue) null);
+			assertQuantityJsonRoundTrip(quantity, "{\"value\":{\"amount\":\"" + testCase[1]
+						+ "\",\"unit\":\"1\"},\"type\":\"quantity\"}");
+		}
+	}
+
+	@Test
+	public void testExponentBoundsToJson() {
+		String[][] cases = {
+				{"12.34E+5", "12.33E+5", "12.35E+5", "+1234000", "+1233000", "+1235000"},
+				{"-12.34E+5", "-12.35E+5", "-12.33E+5", "-1234000", "-1235000", "-1233000"},
+				{"1.234E-7", "1.233E-7", "1.235E-7", "+0.0000001234", "+0.0000001233", "+0.0000001235"},
+				{"-1.234E-7", "-1.235E-7", "-1.233E-7", "-0.0000001234", "-0.0000001235", "-0.0000001233"},
+				{"0E+7", "-1E-7", "1E-7", "+0", "-0.0000001", "+0.0000001"}
+		};
+		for (String[] testCase : cases) {
+			QuantityValue quantity = new QuantityValueImpl(new BigDecimal(testCase[0]),
+					new BigDecimal(testCase[1]), new BigDecimal(testCase[2]), unitMeterId);
+			assertQuantityJsonRoundTrip(quantity, "{\"value\":{\"amount\":\"" + testCase[3]
+					+ "\",\"lowerBound\":\"" + testCase[4] + "\",\"upperBound\":\"" + testCase[5]
+					+ "\",\"unit\":\"" + unitMeter + "\"},\"type\":\"quantity\"}");
+		}
+	}
+
+	@Test
+	public void testPlainQuantityToJsonPreservesScale() {
+		String[][] cases = {
+				{"4.00", "3.900", "4.100", "+4.00", "+3.900", "+4.100"},
+				{"-4.00", "-4.100", "-3.900", "-4.00", "-4.100", "-3.900"},
+				{"0.00", "-0.010", "0.010", "+0.00", "-0.010", "+0.010"}
+		};
+		for (String[] testCase : cases) {
+			QuantityValue quantity = new QuantityValueImpl(new BigDecimal(testCase[0]),
+					new BigDecimal(testCase[1]), new BigDecimal(testCase[2]), (ItemIdValue) null);
+			assertQuantityJsonRoundTrip(quantity, "{\"value\":{\"amount\":\"" + testCase[3]
+					+ "\",\"lowerBound\":\"" + testCase[4] + "\",\"upperBound\":\"" + testCase[5]
+					+ "\",\"unit\":\"1\"},\"type\":\"quantity\"}");
+		}
+	}
+
+	private void assertQuantityJsonRoundTrip(QuantityValue quantity, String expectedJson) {
+		String json = mapper.writeValueAsString(quantity);
+		JsonComparator.compareJsonStrings(expectedJson, json);
+		QuantityValue restored = (QuantityValue) mapper.readValue(json, ValueImpl.class);
+		assertEquals(0, quantity.getNumericValue().compareTo(restored.getNumericValue()));
+		assertEquals(quantity.getUnitItemId(), restored.getUnitItemId());
+		if (quantity.getLowerBound() == null) {
+			assertNull(restored.getLowerBound());
+			assertNull(restored.getUpperBound());
+		} else {
+			assertEquals(0, quantity.getLowerBound().compareTo(restored.getLowerBound()));
+			assertEquals(0, quantity.getUpperBound().compareTo(restored.getUpperBound()));
+		}
+	}
+
+	@Test
 	public void hashBasedOnContent() {
 		assertEquals(q1.hashCode(), q2.hashCode());
 	}
