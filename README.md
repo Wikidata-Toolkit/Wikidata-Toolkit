@@ -43,22 +43,16 @@ During development, the version number in the `pom.xml` files should be the next
 
 The library is automatically packaged and uploaded to Maven Central by the continuous deployment (with GitHub Actions). So is the HTML version of the javadoc (to GitHub Pages).
 
-## Projects Using Wikidata Toolkit
+## Projects using Wikidata Toolkit
 
-This is list to showcase real-world usage of Wikidata Toolkit and to help reach out to users when considering significant changes. If you're using Wikidata Toolkit, please consider adding your project here.
-
-### Tools & Applications
-
+The following tools use Wikidata-Toolkit. Consider submitting a PR to add yours:
+* **[OpenRefine](https://openrefine.org)** can upload data to Wikibase instances using Wikidata-Toolkit ([code](https://github.com/OpenRefine/OpenRefine/tree/master/extensions/wikibase), [documentation](https://www.wikidata.org/wiki/Wikidata:Tools/OpenRefine))
+* **[cudami](https://github.com/dbmdz/metadata-service)** uses Wikidata-Toolkit to interface with Wikibase's data model
+* **[ISSNBot](https://github.com/CIEPS/ISSNBot)**, for adding information from ISSN to Wikidata
+* **[wdsub](https://github.com/weso/wdsub)** can be used to create dumps for subsets of Wikidata
+* **[linkedpipes/ETL](https://github.com/linkedpipes/etl)** uses Wikidata-Toolkit to integrate Wikidata in ETL pipelines
 * **[Wikibrowser](https://github.com/JavaFXpert/wikibrowser-service)** – Facility that browses Wikipedia augmented with semantic capabilities.
-
-### Bots
-
 * **[Makrobot](https://www.wikidata.org/wiki/User:Makrobot)** – A collection of maintenance bots built with Wikidata Toolkit, including:
     * *SetNumLabels* – Adds default labels to items about integer numbers based on their P31 (instance of) values. Has processed over 10,000 items.
     * *FixIntegerPrecision* – Corrects quantity values on integer-required properties (e.g., population) from the default ±1 precision to exact values.
-
-### Example Implementations
-
-The [wikidata-toolkit-examples](https://github.com/Wikidata/Wikidata-Toolkit-Examples) repository contains a number of example programs and bots that demonstrate basic functions. See the repository [README](https://github.com/Wikidata-Toolkit/Wikidata-Toolkit-Examples/blob/master/src/examples/README.md) for a full guide.
-* **[WorldMapProcessor.java](https://github.com/Wikidata-Toolkit/Wikidata-Toolkit-Examples/blob/master/src/examples/WorldMapProcessor.java)** - This program generates images of world maps based on the locations of Wikidata items, and stores the result in PNG files. See [Wikidata world maps for June 2015](https://iccl.inf.tu-dresden.de/web/Wikidata/Maps-06-2015/en)
-* **[ClassPropertyUsageExample.java](https://github.com/Wikidata-Toolkit/Wikidata-Toolkit-Examples/blob/master/src/examples/ClassPropertyUsageAnalyzer.java)** - This advanced program analyses the use of properties and classes on Wikidata, and creates output that can be used in the Miga data browser.
+* The **[Wikidata-Toolkit-Examples](https://github.com/Wikidata/Wikidata-Toolkit-Examples)** repository contains a number of example programs and bots that demonstrate basic functions. See the repository [README](https://github.com/Wikidata-Toolkit/Wikidata-Toolkit-Examples/blob/master/src/examples/README.md) for a full guide.
